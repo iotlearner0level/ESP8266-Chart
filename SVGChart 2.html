@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>CreateChartusingSVG</title>
+
+    <style type="text/css">
+        #chartcontainer 
+        { height: 550px; width: 600px; border: double; background-color:aliceblue; position: fixed; top:100px; left: 500px; }
+
+        #charttype 
+        { border: double; height: 75px; width: 100px; position: fixed; left:750px; }
+
+    </style>
+
+    <script type="text/javascript">
+        var studentexamdata = new Array();
+		var old_x1=0;old_y1=0;
+
+        studentexamdata[0] = "01,80";
+        studentexamdata[1] = "02,40";
+        studentexamdata[2] = "03,70";
+        studentexamdata[3] = "04,80";
+        studentexamdata[4] = "05,30";
+        studentexamdata[5] = "06,90";
+        studentexamdata[6] = "07,70";
+        studentexamdata[7] = "08,80";
+        studentexamdata[8] = "09,100";
+        studentexamdata[9] = "10,60";
+
+        var svg;
+        var svgWidth, svgHeight, svgMargin, svgSpace;
+        var MarginSpace, MarginHeight;
+        var barchartWidth, barchartMargin, totalChartBars, maximumDataValue;
+        var LabelOnYAxis;
+
+        function drawBarChart()
+        {
+            svg = document.getElementsByTagName('svg')[0];
+
+            var barchart = document.getElementById('barchart');
+            barchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Bar");
+            }, false);
+
+            var pointchart = document.getElementById('pointchart');
+            pointchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Point");
+            }, false);
+			var pointchart = document.getElementById('linechart');
+            pointchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Line");
+            }, false);
+			var polychart = document.getElementById('polychart');
+            polychart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Poly");
+            }, false);
+
+        }
+
+        function clear()
+        {
+            while (svg.lastChild)
+            {
+                svg.removeChild(svg.lastChild);
+            }
+        }
+
+        function ChartSettings()
+        {
+            svgMargin = 20;
+            svgSpace = 60;
+
+            svgHeight = svg.height.baseVal.value - 2 * svgMargin - svgSpace;
+            svgWidth = svg.width.baseVal.value - 2 * svgMargin - svgSpace;
+
+            MarginSpace = svgMargin + svgSpace;
+            MarginHeight = svgMargin + svgHeight;
+
+            barchartMargin = 15;
+            totalChartBars = studentexamdata.length;
+            barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
+
+            maximumDataValue = 0;
+            for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrVal = studentexamdata[i].split(",");
+                var barVal = parseInt(arrVal[1]);
+                if (parseInt(barVal) > parseInt(maximumDataValue))
+                    maximumDataValue = barVal;
+            }
+
+            LabelOnYAxis = 10;
+        }
+
+        function drawAxis()
+        {
+            //Y-Axis
+            drawXYAxis(MarginSpace, MarginHeight, MarginSpace, svgMargin);
+            //X-Axis
+            drawXYAxis(MarginSpace, MarginHeight, MarginSpace + barchartWidth + 500, MarginHeight);
+            drawMarkers();
+        }
+
+        function drawXYAxis(x1, y1, x2, y2)
+        {
+            var newdataAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            newdataAxis.setAttribute("x1", x1);
+            newdataAxis.setAttribute("y1", y1);
+            newdataAxis.setAttribute("x2", x2);
+            newdataAxis.setAttribute("y2", y2);
+            newdataAxis.style.stroke = "black";
+            newdataAxis.style.strokeWidth = "2px";
+            svg.appendChild(newdataAxis);
+        }
+
+        function drawMarkers()
+        {
+            var numberMarkers = parseInt(maximumDataValue / LabelOnYAxis);
+            for (var i = 0; i < LabelOnYAxis + 1; i++)
+            {
+                markerVal = i * numberMarkers;
+                markerValHt = i * numberMarkers * svgHeight;
+                var xaxisMarkers = MarginSpace - 5;
+                var yaxisMarkers = MarginHeight - (markerValHt / maximumDataValue);
+                textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                textelement.setAttribute('dx', xaxisMarkers-40);
+                textelement.setAttribute('dy',yaxisMarkers);
+                txtnode = document.createTextNode(markerVal);
+                textelement.appendChild(txtnode);
+                svg.appendChild(textelement);
+            }
+            for (var i = 0; i < totalChartBars; i++)
+            {
+                arrVal = studentexamdata[i].split(",");
+                name = arrVal[0];
+                markerXPosition = MarginSpace + barchartMargin + (i * (barchartWidth + barchartMargin)) + (barchartWidth / 2);
+                markerYPosition = MarginHeight + 20;
+                textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                textelement.setAttribute('dx', markerXPosition);
+                textelement.setAttribute('dy', markerYPosition);
+                txtnode = document.createTextNode(name);
+                textelement.appendChild(txtnode);
+                svg.appendChild(textelement);
+            }
+        }
+
+        function drawRectangleForChart(x, y, wd, ht, fill) {
+            var rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+            rect.setAttributeNS(null, 'x', x);
+            rect.setAttributeNS(null, 'y', y);
+            rect.setAttributeNS(null, 'width', wd);
+            rect.setAttributeNS(null, 'height', ht);
+            rect.setAttributeNS(null, 'fill', "blue");
+            svg.appendChild(rect);
+        }
+
+        function drawEllipse(x, y, rx) {
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+            circle.setAttributeNS(null, 'cx', x);
+            circle.setAttributeNS(null, 'cy', y);
+            circle.setAttributeNS(null, 'r', rx);
+            circle.setAttributeNS(null, 'fill', "darkred");
+            svg.appendChild(circle);
+        }
+        function drawLine(x, y, rx) {
+            var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            line.setAttributeNS(null, 'x1', old_x1)
+			line.setAttributeNS(null, 'y1',old_y1);
+            line.setAttributeNS(null, 'x2', x)
+			line.setAttributeNS(null, 'y2',y);
+			
+			old_x1=x;old_y1=y;
+            line.setAttributeNS(null, 'stroke-width', rx);
+            line.setAttributeNS(null, 'fill', "darkred");
+            line.setAttributeNS(null, 'stroke', "black");
+            line.setAttributeNS(null, 'stroke-width', rx);
+            svg.appendChild(line);
+        }
+		
+        function drawPoly(points, rx) {
+		var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+var filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+filter.setAttribute("id","f1");
+filter.setAttribute("x","0");
+filter.setAttribute("y","0");
+
+var gaussianFilter = document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur");
+gaussianFilter.setAttribute("in","SourceGraphic");
+gaussianFilter.setAttribute("stdDeviation","15");
+
+filter.appendChild(gaussianFilter);
+defs.appendChild(filter);
+svg.appendChild(defs);    
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
+			
+			console.log(points);
+
+            polyline.setAttributeNS(null, 'points', points)
+			
+            polyline.setAttributeNS(null, 'stroke-width', rx);
+            polyline.setAttributeNS(null, 'fill', "darkred");
+            polyline.setAttributeNS(null, 'stroke', "black");
+			polyline.setAttributeNS(null, 'filter', "url(#f1)");
+
+            svg.appendChild(polyline);
+        }
+
+        function drawChart(chart)
+        {
+			var points="";
+			if(chart=="Poly"){
+			var examdata=studentexamdata;
+			for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrchartVal = examdata[i].split(",");
+                bcVal = parseInt(arrchartVal[1]);
+                bcHt = (bcVal * svgHeight / maximumDataValue);
+                bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+                bcY = (MarginHeight - bcHt - 2);
+				points+=bcX+','+bcY+' ';
+
+
+			
+			}
+			console.log(points);
+			drawPoly(points, 5,5);
+			return;
+			console.log("did not return");
+			}
+
+			
+            for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrchartVal = studentexamdata[i].split(",");
+                bcVal = parseInt(arrchartVal[1]);
+                bcHt = (bcVal * svgHeight / maximumDataValue);
+                bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+                bcY = (MarginHeight - bcHt - 2);
+				points+=bcX+','+bcY+' ';
+				console.log(points);
+                switch (chart)
+                {
+                    case "Bar":
+                        drawRectangleForChart(bcX, bcY, barchartWidth, bcHt, true);
+                        break;
+
+                    case "Point":
+                        drawEllipse(bcX, bcY, 5, 5);
+                        break;
+                    case "Line":
+                        drawLine(bcX, bcY, 5, 5);
+                        break;
+                    case "Poly":
+                        drawPoly(points, 5,5);
+                        break;
+
+                }
+            }
+        }
+        window.onload = drawBarChart;
+    </script>
+</head>
+
+<body>
+    <div id="chartcontainer">
+        <svg id="svgcontainer" height="600" width="550">
+		 <defs>
+    <filter id="f1" x="0" y="0">
+      <feOffset in="SourceGraphic" stdDeviation="15" />
+    </filter>
+	<filter id="f3" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+    <filter id="f4" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceGraphic" dx="20" dy="20" />
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix"
+      values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
+      <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="10" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+  </defs>
+
+  </defs>
+  <rect width="90" height="90" stroke="green" stroke-width="3"
+  fill="yellow" filter="url(#f4)" />
+
+        </svg>
+    </div>
+    <div id="charttype">
+        <br />
+        <input type="radio"  id="barchart" name="Chart" />Bar Chart 
+        <br />
+        <input type="radio" id="pointchart" name="Chart" />Point Chart
+        <br />
+        <input type="radio" id="linechart" name="Chart" />Line Chart
+        <br />
+        <input type="radio" id="polychart" name="Chart" />Poly Line Chart
+    </div>
+</body>
+
+</html>
