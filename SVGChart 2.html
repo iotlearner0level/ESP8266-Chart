@@ -1,20 +1,37 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>CreateChartusingSVG</title>
+	 <style type="text/css">
+#lines:hover{
+		blur(15);
+}
+#lines{
+	filter:drop-shadow(8px 8px 10px gray);
+}
 
-    <style type="text/css">
-        #chartcontainer 
-        { height: 550px; width: 600px; border: double; background-color:aliceblue; position: fixed; top:100px; left: 500px; }
+ //       #chartcontainer 
+ //       { height: 550px; width: 600px; border: double; background-color:aliceblue; position: fixed; top:100px; left: 500px; }
 
-        #charttype 
-        { border: double; height: 75px; width: 100px; position: fixed; left:750px; }
+       #charttype 
+      { border: double;  filter:drop-box(8px 8px 10px gray);}
+	  #charttype:hover{
+	  filter:blur(24);
+	  }
+
+//    
+ //   <style type="text/css">
+ //       #chartcontainer 
+ //       { height: 550px; width: 600px; border: double; background-color:aliceblue; position: fixed; top:100px; left: 500px; }
+
+//        #charttype 
+ //       { border: double; height: 75px; width: 100px; position: fixed; left:750px; }
 
     </style>
 
     <script type="text/javascript">
         var studentexamdata = new Array();
-		var old_x1=0;old_y1=0;
+
 
         studentexamdata[0] = "01,80";
         studentexamdata[1] = "02,40";
@@ -26,7 +43,8 @@
         studentexamdata[7] = "08,80";
         studentexamdata[8] = "09,100";
         studentexamdata[9] = "10,60";
-
+		var old_x1=parseInt(studentexamdata[0].split(",")[0]);old_y1=parseInt(studentexamdata[0].split(",")[01]);initial=0;
+		console.log(old_x1);console.log(old_y1);
         var svg;
         var svgWidth, svgHeight, svgMargin, svgSpace;
         var MarginSpace, MarginHeight;
@@ -167,6 +185,13 @@
             rect.setAttributeNS(null, 'width', wd);
             rect.setAttributeNS(null, 'height', ht);
             rect.setAttributeNS(null, 'fill', "blue");
+            rect.setAttributeNS(null, 'fill-opacity', "0.1");
+            rect.setAttributeNS(null, 'stroke', "green");
+            rect.setAttributeNS(null, 'stroke-opacity', "0.9");
+            rect.setAttributeNS(null, 'stroke-width', "5");
+			rect.setAttributeNS(null, 'id', 'lines');
+			
+
             svg.appendChild(rect);
         }
 
@@ -176,6 +201,7 @@
             circle.setAttributeNS(null, 'cy', y);
             circle.setAttributeNS(null, 'r', rx);
             circle.setAttributeNS(null, 'fill', "darkred");
+			circle.setAttributeNS(null, 'id', 'lines');
             svg.appendChild(circle);
         }
         function drawLine(x, y, rx) {
@@ -190,24 +216,15 @@
             line.setAttributeNS(null, 'fill', "darkred");
             line.setAttributeNS(null, 'stroke', "black");
             line.setAttributeNS(null, 'stroke-width', rx);
+			line.setAttributeNS(null, 'id', 'lines');
             svg.appendChild(line);
+
         }
 		
         function drawPoly(points, rx) {
-		var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
 
-var filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
-filter.setAttribute("id","f1");
-filter.setAttribute("x","0");
-filter.setAttribute("y","0");
 
-var gaussianFilter = document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur");
-gaussianFilter.setAttribute("in","SourceGraphic");
-gaussianFilter.setAttribute("stdDeviation","15");
-
-filter.appendChild(gaussianFilter);
-defs.appendChild(filter);
-svg.appendChild(defs);    
+    
             var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
 			
 			console.log(points);
@@ -215,11 +232,13 @@ svg.appendChild(defs);
             polyline.setAttributeNS(null, 'points', points)
 			
             polyline.setAttributeNS(null, 'stroke-width', rx);
-            polyline.setAttributeNS(null, 'fill', "darkred");
+            polyline.setAttributeNS(null, 'fill', "blue");
+            polyline.setAttributeNS(null, 'fill-opacity', "0.05");
+			
             polyline.setAttributeNS(null, 'stroke', "black");
-			polyline.setAttributeNS(null, 'filter', "url(#f1)");
-
+			polyline.setAttributeNS(null, 'id', 'lines');
             svg.appendChild(polyline);
+			drawChart("Point");
         }
 
         function drawChart(chart)
@@ -239,12 +258,15 @@ svg.appendChild(defs);
 
 			
 			}
+			var x1=MarginSpace + (0 * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+			var x2=MarginSpace + (totalChartBars * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+			points=x1+","+svgHeight+" "+points+" "+x2+","+svgHeight;
 			console.log(points);
 			drawPoly(points, 5,5);
 			return;
 			console.log("did not return");
 			}
-
+			
 			
             for (var i = 0; i < totalChartBars; i++)
             {
@@ -255,6 +277,7 @@ svg.appendChild(defs);
                 bcY = (MarginHeight - bcHt - 2);
 				points+=bcX+','+bcY+' ';
 				console.log(points);
+				if(initial++==0){old_x1=bcX;old_y1=bcY;}
                 switch (chart)
                 {
                     case "Bar":
@@ -266,14 +289,64 @@ svg.appendChild(defs);
                         break;
                     case "Line":
                         drawLine(bcX, bcY, 5, 5);
+                        drawEllipse(bcX, bcY, 5, 5);
+
                         break;
                     case "Poly":
                         drawPoly(points, 5,5);
                         break;
 
                 }
+
             }
-        }
+		old_x1=parseInt(studentexamdata[0].split(",")[0]);old_y1=parseInt(studentexamdata[0].split(",")[01]);
+		}
+		function filters(){
+		
+		var svg=document.getElementById("lines");
+var fs=document.getElementById("lines");
+var circles=0;
+var svgns="http://www.w3.org/2000/svg";
+var w=window.innerWidth;
+
+function createfilter(posx,posy,sizex,sizey,type,data){
+    var filter=document.createElementNS(svgns,"lines");
+    filter.setAttribute("id","f"+circles);
+    //filter.setAttribute("x",posx);
+    //filter.setAttribute("y",posy);
+    //filter.setAttribute("width",sizex);
+    //filter.setAttribute("height",sizey);
+    fs.appendChild(filter);
+    for(z=0;z<(data.length/2);z++){
+        var filter=document.createElementNS(svgns,type[z]);
+        filter.setAttributeNS(null,"in","SourceGraphic");
+        filter.setAttributeNS(null,data[2*z],data[2*z+1]);
+        document.getElementById("f"+circles).appendChild(filter);
+    }
+    console.log(document.getElementById("f"+circles)); //to see if it has worked or not
+}
+
+function createcircle(posx,posy,radius,stroke,fill,filter){
+    var circle=document.createElementNS(svgns,"circle");
+    circle.setAttributeNS(null,"id","c"+circles);
+    circle.setAttributeNS(null,"cx",posx);
+    circle.setAttributeNS(null,"cy",posy);
+    circle.setAttributeNS(null,"r",radius);
+    circle.setAttributeNS(null,"stroke-width",stroke);
+    circle.setAttributeNS(null,"fill",fill);
+    circle.setAttributeNS(null,"filter",filter);
+    circle.setAttributeNS(null,"data-posx",posx);
+    svg.appendChild(circle);
+    console.log(circle);
+}
+
+for(i=0;i<10;i++){
+    circles+=1;
+    createcircle((i*w/10),"50%","100","0","hsla("+(i*36)+",100%,50%,0.5)","url(#f"+circles+")");        createfilter("-50%","-50%","200%","200%",["feGaussianBlur"],["stdDeviation","5"]);
+//this works - the parameters are (posx,posy,radius,stroke,fill,filter) but currently I can only use a filter that I have created in the html svg element as my code doesn't work
+}
+		
+		}
         window.onload = drawBarChart;
     </script>
 </head>
@@ -300,8 +373,8 @@ svg.appendChild(defs);
   </defs>
 
   </defs>
-  <rect width="90" height="90" stroke="green" stroke-width="3"
-  fill="yellow" filter="url(#f4)" />
+  <rect x="15" y="15" width="580" height="630" stroke="green" stroke-width="3"
+  style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"  filter="url(#f4)" />
 
         </svg>
     </div>
