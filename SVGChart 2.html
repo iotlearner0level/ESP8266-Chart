@@ -3,32 +3,116 @@
 <head>
     <title>CreateChartusingSVG</title>
 	 <style type="text/css">
-.lines:hover{
-			filter:url(#f2);
-}
-.lines{
 
-
+#mousepos {
+  position: absolute;
+  opacity:0.9;
+  z-index: 9;
+  background-color: #f1f1f1;
+  text-align: center;
+  border: 1px solid #d3d3d3;
+  filter:blur(2);
+  filter:drop-shadow(8px 8px 10px gray);
+  
 }
-	.text1:hover{
-		{style:"bold";}
-	.text1{
-	filter:url(#f4);
-	}
+line:hover {
+    stroke-width:  "12";
+	opacity:0.2;
+	filter:	blur(2);
+}
+pollyline:hover {
+
+	fill:url(#grad1);
+}
+text:hover {
+    stroke-width:  "12";
+	opacity:0.8;
+	font-stretch:expanded;
+	font-weight: bold;
+    box-shadow: 0 0 20px rgba(31,31,31,.2),
+        5px 9px 10px rgba(224,224,224,.65),
+        inset 5px 9px 10px rgba(31,31,31,.6),
+        inset 0 0 25px rgba(224,224,224,.25);	
+
+	filter:blur(10);
+}
+circle:hover {
+//  fill: #009966;
+//  transform:  scale(1.5);
+    stroke-width:  "2";
+	opacity:0.6;
+
+  filter:	blur(1.5);
+}
+newdataAxis:hover{
+		stroke-width:"10";
+		}
 
 	   #chartcontainer 
 
-       {  filter:drop-shadow(8px 8px 10px gray);filter:blur(24);}
-	   #chartcontainer:hover 
-
-       {  filter:blur(24);}
+       {  filter:drop-shadow(8px 8px 10px gray);filter:blur(2.4);}
 
 
-       #charttype 
-      { border: double; }
+      #charttype 
+      { border: double;
+	  filter:blur(24);}
 	  #charttype:hover{ filter:drop-shadow(8px 8px 10px gray);
 	  
 	  }
+}
+
+	svg:hover .text1 .lines {
+		{style:"bold";
+		  transform:  scale(1.5);}
+	.text1{
+	filter:url(#f4);
+	}
+	svg {background-color: black;}
+	.st0{fill:#E2E8E3;}
+	.head, .head path {
+		fill:#c0392b;
+	}
+	.background{fill:#B5C1B7;}
+	.light{
+		fill:url(#SVGID_1_);
+		opacity: 0;
+		transition: opacity .5s ease-in 6s;
+	}
+	svg:hover .light {
+		opacity: 1;
+	}
+
+	.inner-lamp{
+		fill:grey; 
+		transition: fill .5s ease-in 6s;
+	}
+	svg:hover .inner-lamp {
+		fill: #FBFFF8;
+	}
+	.cable{
+		fill:none;
+		stroke:#000000;
+		stroke-width:3;
+	}
+	
+	
+	.st86{fill:#9FAAA0;}
+	
+	#cable {
+		stroke: #FFF2B1;
+		stroke-dasharray: 4000 4000;
+		stroke-dashoffset: 4000;
+		stroke-width: 4;
+
+		transition: stroke-dashoffset 8s linear;
+	}
+	svg:hover #cable {
+		stroke-dashoffset: 0;
+	}
+	svg:hover circle {
+		fill: yellow;
+	}
+
 
 //    
  //   <style type="text/css">
@@ -41,7 +125,7 @@
     </style>
 
     <script type="text/javascript">
-        var studentexamdata = new Array(100);
+        var studentexamdata = new Array(100);var numlines=0;
 
 
         studentexamdata[0] = "01,80";
@@ -71,6 +155,48 @@
             svg = document.getElementsByTagName('svg')[0];
 
             var barchart = document.getElementById('barchart');
+			svg.addEventListener('mouseover',function ()
+            {
+						for(var counter=0;counter<numlines;counter++){
+						var elem=document.getElementById("vertline");
+						if(elem){
+						elem.remove();numlines--;
+						}}
+						console.log("numlines=");
+						console.log(numlines);
+					
+						var e = window.event;
+
+						var posX = e.clientX;
+						var posY = e.clientY;
+						var index1=Math.floor(studentexamdata.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
+//						bcY = (MarginHeight - bcHt - 2);
+						if(index1>-1&& index1<studentexamdata.length){
+//						console.log(index1);console.log(posX - MarginSpace -  10);console.log(MarginWidth)
+						var x1=parseInt(studentexamdata[index1].split(",")[0]),y1=parseInt(studentexamdata[index1].split(",")[1])
+						document.getElementById('mousepos').style.top = posY+"px";
+						document.getElementById('mousepos').style.left = posX+"px";
+						document.getElementById('mousex').value = x1;
+						document.getElementById('mousey').value = y1;
+						
+						drawVert(posX,MarginHeight,posX,svgMargin,1,"cyan","ticks","vertline");//Y-Axis
+						drawVert(svgWidth,posY,MarginSpace,posY,1,"green","ticks","vertline");//X-Axis
+
+						for(var counter=2;counter<numlines;counter++){
+						var elem=document.getElementById("vertline");
+						if(elem){
+						elem.remove();numlines--;
+						}}
+
+
+
+						}
+
+ 
+						
+			}, true);
+
+
             barchart.addEventListener('click', function ()
             {
                 clear();
@@ -128,8 +254,10 @@
 
             barchartMargin = 15;
 //            totalChartBars = studentexamdata.length;
-            totalChartBars = 15;
+            totalChartBars = 50;
+			totalChartLabels=15;
             barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
+			labelchartWidth=(svgWidth / totalChartLabels) - barchartMargin;
 
             maximumDataValue = 0;
             for (var i = 0; i < totalChartBars; i++)
@@ -150,16 +278,19 @@
 
 
             LabelOnYAxis = 10;
-			LabelOnXAxis = 10;
+			LabelOnXAxis = 20;
         }
 
         function drawAxis()
         {
             //Y-Axis
+			drawXYTicks(1);
             drawXYAxis(MarginSpace, MarginHeight, MarginSpace, svgMargin);
             //X-Axis
             drawXYAxis(MarginSpace, MarginHeight, MarginSpace + MarginWidth, MarginHeight);
+			
             drawMarkers();
+			
         }
 
         function drawXYAxis(x1, y1, x2, y2)
@@ -172,7 +303,38 @@
             newdataAxis.style.stroke = "black";
             newdataAxis.style.strokeWidth = "5px";
             svg.appendChild(newdataAxis);
+			
         }
+		function drawXYTicks(colour){
+		    var numberMarkers = parseInt(maximumDataValue / LabelOnYAxis);
+            for (var i = 0; i < LabelOnYAxis + 1; i++)
+            {
+                markerVal = i * numberMarkers;
+                markerValHt = i * numberMarkers * svgHeight;
+                var xaxisMarkers = MarginSpace+MarginWidth;
+//                var xaxisMarkers = MarginSpace - 5;
+				
+                var yaxisMarkers = MarginHeight - (markerValHt / maximumDataValue);
+				drawVert(MarginSpace,yaxisMarkers,xaxisMarkers,yaxisMarkers,3,"grey");
+
+
+            }
+            for (var i = 0; i < totalChartLabels; i++)
+            {
+				currVal=i*studentexamdata.length/totalChartLabels;
+				currVal=currVal.toFixed(0);
+                arrVal = studentexamdata[currVal].split(",");
+                name = arrVal[0];
+                markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
+//                markerYPosition = MarginHeight + 20;
+                markerYPosition = MarginHeight ;
+
+				drawVert(markerXPosition,svgMargin,markerXPosition,markerYPosition,1,"darkgrey");
+
+            }
+
+
+		}
 
         function drawMarkers()
         {
@@ -191,14 +353,15 @@
                 txtnode = document.createTextNode(markerVal);
                 textelement.appendChild(txtnode);
                 svg.appendChild(textelement);
+
             }
-            for (var i = 0; i < totalChartBars; i++)
+            for (var i = 0; i < totalChartLabels; i++)
             {
-				currVal=i*studentexamdata.length/totalChartBars;
+				currVal=i*studentexamdata.length/totalChartLabels;
 				currVal=currVal.toFixed(0);
                 arrVal = studentexamdata[currVal].split(",");
                 name = arrVal[0];
-                markerXPosition = MarginSpace + barchartMargin + (i * (barchartWidth + barchartMargin)) + (barchartWidth / 2);
+                markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
                 markerYPosition = MarginHeight + 20;
                 textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
                 textelement.setAttribute('dx', markerXPosition);
@@ -252,6 +415,32 @@
             svg.appendChild(line);
 
         }
+        function drawVert(x1, y1,x2,y2,strokesize=1,colourid="grey",classid="ticks",elemid) {
+			
+
+            var vertline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            vertline.setAttributeNS(null, 'x1', x1)
+			vertline.setAttributeNS(null, 'y1',y1);
+            vertline.setAttributeNS(null, 'x2', x2)
+			vertline.setAttributeNS(null, 'y2',y2);
+			
+            vertline.setAttributeNS(null, 'stroke-width', strokesize);
+            vertline.setAttributeNS(null, 'fill', "white");
+            vertline.setAttributeNS(null, 'stroke', colourid);
+            vertline.setAttributeNS(null, 'stroke-width', strokesize);
+			vertline.setAttributeNS(null, 'class', classid);
+			vertline.setAttributeNS(null, 'opacity', '0.9');
+			if(elemid)
+			vertline.setAttributeNS(null, 'id', elemid);
+			if(elemid=="vertline")
+				numlines++;console.log("inside drawvert numlines=");
+				console.log(numlines);
+			
+			
+            svg.appendChild(vertline);
+
+        }
+		
 		
         function drawPoly(points, rx) {
 
@@ -259,13 +448,15 @@
     
             var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
 			
-			console.log(points);
+//			console.log(points);
 
             polyline.setAttributeNS(null, 'points', points)
 			
             polyline.setAttributeNS(null, 'stroke-width', rx);
             polyline.setAttributeNS(null, 'fill', "blue");
-            polyline.setAttributeNS(null, 'fill-opacity', "0.05");
+//            polyline.setAttributeNS(null, 'fill', "url(#grad1)");
+
+            polyline.setAttributeNS(null, 'fill-opacity', "0.5");
 			
             polyline.setAttributeNS(null, 'stroke', "black");
 			polyline.setAttributeNS(null, 'class', 'lines');
@@ -293,7 +484,7 @@
 			var x1=MarginSpace + (0 * (barchartWidth + barchartMargin)) + barchartMargin + 10;
 			var x2=MarginSpace + (totalChartBars * (barchartWidth + barchartMargin)) + barchartMargin + 10;
 			points=x1+","+svgHeight+" "+points+" "+x2+","+svgHeight;
-			console.log(points);
+//			console.log(points);
 			drawPoly(points, 5,5);
 			return;
 			console.log("did not return");
@@ -308,7 +499,7 @@
                 bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
                 bcY = (MarginHeight - bcHt - 2);
 				points+=bcX+','+bcY+' ';
-				console.log(points);
+//				console.log(points);
 				if(initial++==0){old_x1=bcX;old_y1=bcY;}
                 switch (chart)
                 {
@@ -327,11 +518,12 @@
                     case "Poly":
                         drawPoly(points, 5,5);
                         break;
-
                 }
 
             }
 		old_x1=parseInt(studentexamdata[0].split(",")[0]);old_y1=parseInt(studentexamdata[0].split(",")[01]);
+		if(i>=totalChartBars)initial=0;
+
 		}
 		function filters(){
 		
@@ -385,7 +577,7 @@ for(i=0;i<10;i++){
 
 <body>
     <div id="chartcontainer">
-        <svg id="svgcontainer" height="600" width=window.innerWidth>
+        <svg id="svgcontainer" height="600" width=80%>
 		 <defs>
     <filter id="f1" x="0" y="0">
       <feOffset in="SourceGraphic" stdDeviation="15" />
@@ -433,6 +625,14 @@ for(i=0;i<10;i++){
         <br />
         <input type="radio" id="polychart" name="Chart" />Poly Line Chart
     </div>
+	    <div id="mousepos">
+        <br />
+        <input type="input"  id="mousex" name="posx" class='labels' />X-Value 
+        <br />
+        <input type="input" id="mousey" name="poxy" class='labels' />Y-Value
+        <br />
+     </div>
+
 </body>
 
 </html>
