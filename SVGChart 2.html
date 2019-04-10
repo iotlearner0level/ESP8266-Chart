@@ -3,20 +3,31 @@
 <head>
     <title>CreateChartusingSVG</title>
 	 <style type="text/css">
-#lines:hover{
-		blur(15);
+.lines:hover{
+			filter:url(#f2);
 }
-#lines{
-	filter:drop-shadow(8px 8px 10px gray);
-}
+.lines{
 
- //       #chartcontainer 
- //       { height: 550px; width: 600px; border: double; background-color:aliceblue; position: fixed; top:100px; left: 500px; }
+
+}
+	.text1:hover{
+		{style:"bold";}
+	.text1{
+	filter:url(#f4);
+	}
+
+	   #chartcontainer 
+
+       {  filter:drop-shadow(8px 8px 10px gray);filter:blur(24);}
+	   #chartcontainer:hover 
+
+       {  filter:blur(24);}
+
 
        #charttype 
-      { border: double;  filter:drop-box(8px 8px 10px gray);}
-	  #charttype:hover{
-	  filter:blur(24);
+      { border: double; }
+	  #charttype:hover{ filter:drop-shadow(8px 8px 10px gray);
+	  
 	  }
 
 //    
@@ -30,7 +41,7 @@
     </style>
 
     <script type="text/javascript">
-        var studentexamdata = new Array();
+        var studentexamdata = new Array(100);
 
 
         studentexamdata[0] = "01,80";
@@ -43,13 +54,17 @@
         studentexamdata[7] = "08,80";
         studentexamdata[8] = "09,100";
         studentexamdata[9] = "10,60";
+		var i=10;
+		for ( i=10;i<100;i++){
+			studentexamdata[i] = i+","+Math.floor((Math.random() * 100) + 1);;
+			}
 		var old_x1=parseInt(studentexamdata[0].split(",")[0]);old_y1=parseInt(studentexamdata[0].split(",")[01]);initial=0;
 		console.log(old_x1);console.log(old_y1);
         var svg;
         var svgWidth, svgHeight, svgMargin, svgSpace;
         var MarginSpace, MarginHeight;
         var barchartWidth, barchartMargin, totalChartBars, maximumDataValue;
-        var LabelOnYAxis;
+        var LabelOnYAxis,LabelOnYAxis ;
 
         function drawBarChart()
         {
@@ -109,9 +124,11 @@
 
             MarginSpace = svgMargin + svgSpace;
             MarginHeight = svgMargin + svgHeight;
+            MarginWidth = svgMargin + svgWidth;
 
             barchartMargin = 15;
-            totalChartBars = studentexamdata.length;
+//            totalChartBars = studentexamdata.length;
+            totalChartBars = 15;
             barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
 
             maximumDataValue = 0;
@@ -122,8 +139,18 @@
                 if (parseInt(barVal) > parseInt(maximumDataValue))
                     maximumDataValue = barVal;
             }
+			maximumXValue = 0;
+            for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrVal = studentexamdata[i].split(",");
+                var barVal = parseInt(arrVal[0]);
+                if (parseInt(barVal) > parseInt(maximumXValue))
+                    maximumXValue = barVal;
+            }
+
 
             LabelOnYAxis = 10;
+			LabelOnXAxis = 10;
         }
 
         function drawAxis()
@@ -131,7 +158,7 @@
             //Y-Axis
             drawXYAxis(MarginSpace, MarginHeight, MarginSpace, svgMargin);
             //X-Axis
-            drawXYAxis(MarginSpace, MarginHeight, MarginSpace + barchartWidth + 500, MarginHeight);
+            drawXYAxis(MarginSpace, MarginHeight, MarginSpace + MarginWidth, MarginHeight);
             drawMarkers();
         }
 
@@ -143,7 +170,7 @@
             newdataAxis.setAttribute("x2", x2);
             newdataAxis.setAttribute("y2", y2);
             newdataAxis.style.stroke = "black";
-            newdataAxis.style.strokeWidth = "2px";
+            newdataAxis.style.strokeWidth = "5px";
             svg.appendChild(newdataAxis);
         }
 
@@ -159,19 +186,24 @@
                 textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
                 textelement.setAttribute('dx', xaxisMarkers-40);
                 textelement.setAttribute('dy',yaxisMarkers);
+				textelement.setAttribute('class',"text1");
+
                 txtnode = document.createTextNode(markerVal);
                 textelement.appendChild(txtnode);
                 svg.appendChild(textelement);
             }
             for (var i = 0; i < totalChartBars; i++)
             {
-                arrVal = studentexamdata[i].split(",");
+				currVal=i*studentexamdata.length/totalChartBars;
+				currVal=currVal.toFixed(0);
+                arrVal = studentexamdata[currVal].split(",");
                 name = arrVal[0];
                 markerXPosition = MarginSpace + barchartMargin + (i * (barchartWidth + barchartMargin)) + (barchartWidth / 2);
                 markerYPosition = MarginHeight + 20;
                 textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
                 textelement.setAttribute('dx', markerXPosition);
                 textelement.setAttribute('dy', markerYPosition);
+				textelement.setAttribute('class',"text1");
                 txtnode = document.createTextNode(name);
                 textelement.appendChild(txtnode);
                 svg.appendChild(textelement);
@@ -184,12 +216,12 @@
             rect.setAttributeNS(null, 'y', y);
             rect.setAttributeNS(null, 'width', wd);
             rect.setAttributeNS(null, 'height', ht);
-            rect.setAttributeNS(null, 'fill', "blue");
-            rect.setAttributeNS(null, 'fill-opacity', "0.1");
+            rect.setAttributeNS(null, 'fill', "yellow");
+            rect.setAttributeNS(null, 'fill-opacity', "0.05");
             rect.setAttributeNS(null, 'stroke', "green");
             rect.setAttributeNS(null, 'stroke-opacity', "0.9");
             rect.setAttributeNS(null, 'stroke-width', "5");
-			rect.setAttributeNS(null, 'id', 'lines');
+			rect.setAttributeNS(null, 'class', 'lines');
 			
 
             svg.appendChild(rect);
@@ -201,7 +233,7 @@
             circle.setAttributeNS(null, 'cy', y);
             circle.setAttributeNS(null, 'r', rx);
             circle.setAttributeNS(null, 'fill', "darkred");
-			circle.setAttributeNS(null, 'id', 'lines');
+			circle.setAttributeNS(null, 'class', 'lines');
             svg.appendChild(circle);
         }
         function drawLine(x, y, rx) {
@@ -216,7 +248,7 @@
             line.setAttributeNS(null, 'fill', "darkred");
             line.setAttributeNS(null, 'stroke', "black");
             line.setAttributeNS(null, 'stroke-width', rx);
-			line.setAttributeNS(null, 'id', 'lines');
+			line.setAttributeNS(null, 'class', 'lines');
             svg.appendChild(line);
 
         }
@@ -236,7 +268,7 @@
             polyline.setAttributeNS(null, 'fill-opacity', "0.05");
 			
             polyline.setAttributeNS(null, 'stroke', "black");
-			polyline.setAttributeNS(null, 'id', 'lines');
+			polyline.setAttributeNS(null, 'class', 'lines');
             svg.appendChild(polyline);
 			drawChart("Point");
         }
@@ -353,7 +385,7 @@ for(i=0;i<10;i++){
 
 <body>
     <div id="chartcontainer">
-        <svg id="svgcontainer" height="600" width="550">
+        <svg id="svgcontainer" height="600" width=window.innerWidth>
 		 <defs>
     <filter id="f1" x="0" y="0">
       <feOffset in="SourceGraphic" stdDeviation="15" />
@@ -369,12 +401,25 @@ for(i=0;i<10;i++){
       values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
       <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="10" />
       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+	 <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:rgb(255,255,255);
+      stop-opacity:0" />
+      <stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" />
+    </radialGradient>
     </filter>
+    <filter id="f2" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+      <feOffset in="blur" dx="4" dy="4" result="offsetBlur" />
+      <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut">
+        <fePointLight x="-5000" y="-10000" z="20000" />
+      </feSpecularLighting>
+    </filter>
+	
   </defs>
 
   </defs>
-  <rect x="15" y="15" width="580" height="630" stroke="green" stroke-width="3"
-  style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"  filter="url(#f4)" />
+  <rect x="15" y="15" width="50" height="60" stroke="green" stroke-width="3"
+  style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.05;stroke-opacity:0.9"  filter="url(#f4)" />
 
         </svg>
     </div>
