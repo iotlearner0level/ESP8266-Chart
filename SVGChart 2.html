@@ -152,7 +152,7 @@ newdataAxis:hover{
 		console.log(old_x1);console.log(old_y1);
         var svg;
         var svgWidth, svgHeight, svgMargin, svgSpace;
-        var MarginSpace, MarginHeight;
+        var MarginSpace, MarginHeight, MarginWidth;
         var barchartWidth, barchartMargin, totalChartBars, maximumDataValue;
         var LabelOnYAxis,LabelOnYAxis ;
 
@@ -163,30 +163,25 @@ newdataAxis:hover{
             var barchart = document.getElementById('barchart');
 			svg.addEventListener('mouseover',function ()
             {
-						for(var counter=1;counter<numlines;counter++){
-						var elem=document.getElementById("vertline");
-						if(elem){
-						elem.remove();numlines--;
-						}}
-						console.log("numlines=");
-						console.log(numlines);
 					
 						var e = window.event;
 
 						var posX = e.clientX;
 						var posY = e.clientY;
 						var index1=Math.floor(studentexamdata.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
-//						bcY = (MarginHeight - bcHt - 2);
 						if(index1>-1&& index1<studentexamdata.length){
 //						console.log(index1);console.log(posX - MarginSpace -  10);console.log(MarginWidth)
 						var x1=parseInt(studentexamdata[index1].split(",")[0]),y1=parseInt(studentexamdata[index1].split(",")[1])
-						document.getElementById('mousepos').style.top = posY+"px";
-						document.getElementById('mousepos').style.left = posX+"px";
+						document.getElementById('mousepos').style.top = posY+25+"px";
+						document.getElementById('mousepos').style.left = posX+25+"px";
 						document.getElementById('mousex').value = x1;
 						document.getElementById('mousey').value = y1;
-						
-						drawVert(posX,MarginHeight,posX,svgMargin,1,"cyan","ticks","vertline");//Y-Axis
-						drawVert(MarginWidth+MarginSpace,posY,MarginSpace,posY,1,"green","ticks","vertline");//X-Axis
+						bcHt = (y1 * svgHeight / maximumDataValue);
+
+						bcY = (MarginHeight - bcHt - 2);
+
+						updateHVMarker(posX,MarginHeight,posX,svgMargin,"hmarker",);//Y-Axis
+						updateHVMarker(MarginWidth+MarginSpace,bcY,MarginSpace,bcY,"vmarker");//X-Axis
 
 
 
@@ -227,7 +222,20 @@ newdataAxis:hover{
                 clear();
                 ChartSettings();
                 drawAxis();
-                drawChart("Poly");
+                drawPoly();
+            }, false);
+			var pathchart = document.getElementById('pathchart');
+            pathchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawPath();
+				drawChart("Line");
+				drawChart("Point");
+
+
+
             }, false);
 
         }
@@ -254,7 +262,7 @@ newdataAxis:hover{
 
             barchartMargin = 15;
 //            totalChartBars = studentexamdata.length;
-            totalChartBars = 50;
+            totalChartBars = 100;
 			totalChartLabels=15;
             barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
 			labelchartWidth=(svgWidth / totalChartLabels) - barchartMargin;
@@ -290,6 +298,7 @@ newdataAxis:hover{
             drawXYAxis(MarginSpace, MarginHeight, MarginSpace + MarginWidth, MarginHeight);
 			
             drawMarkers();
+			drawHVMarker();
 			
         }
 
@@ -415,9 +424,134 @@ newdataAxis:hover{
             svg.appendChild(line);
 
         }
-        function drawVert(x1, y1,x2,y2,strokesize=1,colourid="grey",classid="ticks",elemid) {
+		function drawPath(x=0, y=0, rx=5,final=0) {
+			var points=[];
+			var examdata=studentexamdata;
+			for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrchartVal = examdata[i].split(",");
+                bcVal = parseInt(arrchartVal[1]);
+                bcHt = (bcVal * svgHeight / maximumDataValue);
+                bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+                bcY = (MarginHeight - bcHt - 2);
+				points.push([bcX,bcY]);
+
+
+			
+			}
+			var drawCmd="";
+			for(i=0;i<points.length-2;i++){
+			var dirY=points[i+2][1]-points[i][1];
+			var dirX=points[i+2][0]-points[i][0];
+			
+			
+			var dist=Math.sqrt(dirY*dirY+1);
+			var unitY=dirY/dist;
+			var unitX=dirX/dist;
+			angle1=Math.atan(-dirY/dirX)+Math.PI/2;
+			angle2=Math.atan(dirY/dirX)+Math.PI/2;
+			x1=points[i+1][0]+Math.cos(angle1)*dist/5;
+			y1=points[i+1][1]+Math.sin(angle1)*dist/5;
+			x2=points[i+1][0]+Math.cos(angle2)*dist/5;
+			y2=points[i+1][1]+Math.sin(angle2)*dist/5;
 			
 
+			drawCmd+="M"+points[i+1][0]+","+points[i+1][1]+" ";
+			drawCmd+="Q"+x2+","+y2+" ";
+			drawCmd+=" "+x1+","+y1+" ";
+
+			}
+			console.log(drawCmd);			
+            var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+ 
+
+			path.setAttributeNS(null, 'd',drawCmd);
+			
+            path.setAttributeNS(null, 'stroke-width', rx);
+            path.setAttributeNS(null, 'fill', "cyan");
+            path.setAttributeNS(null, 'stroke', "red");
+            path.setAttributeNS(null, 'stroke-width', rx);
+			path.setAttributeNS(null, 'class', 'lines');
+//			path.setAttributeNS(null, 'fill-opacity', 0.1);
+			path.setAttributeNS(null, 'id','pathline');
+			
+            svg.appendChild(path);
+		
+			
+/*
+    
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
+            polyline.setAttributeNS(null, 'points', points)
+            polyline.setAttributeNS(null, 'stroke-width', strokesize);
+			polyline.setAttributeNS(null, 'stroke', strokecolour);
+			console.log(fillcolour);
+            polyline.setAttributeNS(null, 'fill', fillcolour);
+            polyline.setAttributeNS(null, 'fill-opacity',fillopacity);
+			
+
+			polyline.setAttributeNS(null, 'class', 'lines');
+			svg.appendChild(polyline);
+
+
+*/
+			
+
+        }
+
+        function updateHVMarker(x1, y1,x2,y2,elemid) {
+			
+			document.getElementById(elemid).x1.baseVal.value=x1;
+			document.getElementById(elemid).x2.baseVal.value=x2;
+			document.getElementById(elemid).y1.baseVal.value=y1;
+			document.getElementById(elemid).y2.baseVal.value=y2;
+
+
+        }
+        function drawHVMarker(strokesize=3,colourid="yellow",classid="ticks",hid="hmarker",vid="vmarker") {
+			
+//						updateHVMarker(posX,MarginHeight,posX,svgMargin,"hmarker",);//Y-Axis
+//						updateHVMarker(MarginWidth+MarginSpace,posY,MarginSpace,posY,"vmarker");//X-Axis
+						
+						
+            var hline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            hline.setAttributeNS(null, 'x1', MarginWidth/2)
+			hline.setAttributeNS(null, 'y1',MarginHeight);
+            hline.setAttributeNS(null, 'x2', MarginWidth/2)
+			hline.setAttributeNS(null, 'y2',svgMargin);
+			
+            hline.setAttributeNS(null, 'stroke-width', strokesize);
+            hline.setAttributeNS(null, 'fill', "white");
+            hline.setAttributeNS(null, 'stroke', colourid);
+            hline.setAttributeNS(null, 'stroke-width', strokesize);
+			hline.setAttributeNS(null, 'class', classid);
+			hline.setAttributeNS(null, 'opacity', '0.9');
+			hline.setAttributeNS(null, 'id', hid);
+
+			
+			
+            svg.appendChild(hline);
+            var vline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            vline.setAttributeNS(null, 'x1', MarginSpace)
+			vline.setAttributeNS(null, 'y1',MarginHeight/2);
+            vline.setAttributeNS(null, 'x2', MarginWidth+MarginSpace)
+			vline.setAttributeNS(null, 'y2',MarginHeight/2);
+			
+            vline.setAttributeNS(null, 'stroke-width', strokesize);
+            vline.setAttributeNS(null, 'fill', "white");
+            vline.setAttributeNS(null, 'stroke', colourid);
+            vline.setAttributeNS(null, 'stroke-width', strokesize);
+			vline.setAttributeNS(null, 'class', classid);
+			vline.setAttributeNS(null, 'opacity', '0.9');
+			vline.setAttributeNS(null, 'id', vid);
+
+			
+			
+            svg.appendChild(vline);
+
+
+        }
+        function drawVert(x1, y1,x2,y2,strokesize=1,colourid="grey",classid="ticks",elemid) {
+			
             var vertline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
             vertline.setAttributeNS(null, 'x1', x1)
 			vertline.setAttributeNS(null, 'y1',y1);
@@ -432,42 +566,15 @@ newdataAxis:hover{
 			vertline.setAttributeNS(null, 'opacity', '0.9');
 			if(elemid)
 			vertline.setAttributeNS(null, 'id', elemid);
-			if(elemid=="vertline")
-				numlines++;console.log("inside drawvert numlines=");
-				console.log(numlines);
 			
 			
             svg.appendChild(vertline);
-
         }
+			
 		
-		
-        function drawPoly(points, rx) {
+        function drawPoly(strokesize=5, fillcolour="blue",strokecolour="black",fillopacity=0.09) {
 
-
-    
-            var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
-			
-//			console.log(points);
-
-            polyline.setAttributeNS(null, 'points', points)
-			
-            polyline.setAttributeNS(null, 'stroke-width', rx);
-            polyline.setAttributeNS(null, 'fill', "blue");
-//            polyline.setAttributeNS(null, 'fill', "url(#grad1)");
-
-            polyline.setAttributeNS(null, 'fill-opacity', "0.5");
-			
-            polyline.setAttributeNS(null, 'stroke', "black");
-			polyline.setAttributeNS(null, 'class', 'lines');
-            svg.appendChild(polyline);
-			drawChart("Point");
-        }
-
-        function drawChart(chart)
-        {
 			var points="";
-			if(chart=="Poly"){
 			var examdata=studentexamdata;
 			for (var i = 0; i < totalChartBars; i++)
             {
@@ -483,12 +590,26 @@ newdataAxis:hover{
 			}
 			var x1=MarginSpace + (0 * (barchartWidth + barchartMargin)) + barchartMargin + 10;
 			var x2=MarginSpace + (totalChartBars * (barchartWidth + barchartMargin)) + barchartMargin + 10;
-			points=x1+","+svgHeight+" "+points+" "+x2+","+svgHeight;
-//			console.log(points);
-			drawPoly(points, 5,5);
-			return;
-			console.log("did not return");
-			}
+			points=x1+","+MarginHeight+" "+points+" "+x2+","+MarginHeight;
+    
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
+            polyline.setAttributeNS(null, 'points', points)
+            polyline.setAttributeNS(null, 'stroke-width', strokesize);
+			polyline.setAttributeNS(null, 'stroke', strokecolour);
+			console.log(fillcolour);
+            polyline.setAttributeNS(null, 'fill', fillcolour);
+            polyline.setAttributeNS(null, 'fill-opacity',fillopacity);
+			
+
+			polyline.setAttributeNS(null, 'class', 'lines');
+			svg.appendChild(polyline);
+
+
+
+        }
+
+        function drawChart(chart)
+        {
 			
 			
             for (var i = 0; i < totalChartBars; i++)
@@ -498,8 +619,6 @@ newdataAxis:hover{
                 bcHt = (bcVal * svgHeight / maximumDataValue);
                 bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
                 bcY = (MarginHeight - bcHt - 2);
-				points+=bcX+','+bcY+' ';
-//				console.log(points);
 				if(initial++==0){old_x1=bcX;old_y1=bcY;}
                 switch (chart)
                 {
@@ -515,8 +634,15 @@ newdataAxis:hover{
                         drawEllipse(bcX, bcY, 5, 5);
 
                         break;
-                    case "Poly":
-                        drawPoly(points, 5,5);
+                    case "Path":
+						if (i==0)
+							drawPath(bcX, bcY, 5,-1);
+						else if(totalChartBars-i==1) 
+							drawPath(bcX, bcY, 5,1); 
+							else 
+
+                        drawPath(bcX, bcY, 5);
+                        drawEllipse(bcX, bcY, 5, 5);
                         break;
                 }
 
@@ -606,6 +732,10 @@ for(i=0;i<10;i++){
         <fePointLight x="-5000" y="-10000" z="20000" />
       </feSpecularLighting>
     </filter>
+       <filter id="grad1">
+            <feImage xlink:href="#boxRect" result="grad"/>
+            <feDisplacementMap scale="10" xChannelSelector="R" yChannelSelector="G" in="SourceGraphic" in2="grad"/>
+        </filter>
 	
   </defs>
 
@@ -624,6 +754,9 @@ for(i=0;i<10;i++){
         <input type="radio" id="linechart" name="Chart" />Line Chart
         <br />
         <input type="radio" id="polychart" name="Chart" />Poly Line Chart
+		        <br />
+        <input type="radio" id="pathchart" name="Chart" />Path Chart
+
     </div>
 	    <div id="mousepos" max-width="10px">(
         <input type="input"  id="mousex" name="posx" class='labels' max-width='1' /> , 
