@@ -127,40 +127,42 @@ newdataAxis:hover{
 
 //        #charttype 
  //       { border: double; height: 75px; width: 100px; position: fixed; left:750px; }
-
+    </style>
     </style>
 
     <script type="text/javascript">
-        var studentexamdata = new Array(100);var numlines=0;
+        var bufferarray = new Array(100);var numlines=0;
 
 
-        studentexamdata[0] = "01,80";
-        studentexamdata[1] = "02,40";
-        studentexamdata[2] = "03,70";
-        studentexamdata[3] = "04,80";
-        studentexamdata[4] = "05,30";
-        studentexamdata[5] = "06,90";
-        studentexamdata[6] = "07,70";
-        studentexamdata[7] = "08,80";
-        studentexamdata[8] = "09,100";
-        studentexamdata[9] = "10,60";
+        bufferarray[0] = "01,80";
+        bufferarray[1] = "02,40";
+        bufferarray[2] = "03,70";
+        bufferarray[3] = "04,80";
+        bufferarray[4] = "05,30";
+        bufferarray[5] = "06,90";
+        bufferarray[6] = "07,70";
+        bufferarray[7] = "08,80";
+        bufferarray[8] = "09,100";
+        bufferarray[9] = "10,60";
 		var i=10;
 		for ( i=10;i<100;i++){
-			studentexamdata[i] = i+","+Math.floor((Math.random() * 100) + 1);;
+			bufferarray[i] = i+","+Math.floor((Math.random() * 100) + 1);;
 			}
-		var old_x1=parseInt(studentexamdata[0].split(",")[0]);old_y1=parseInt(studentexamdata[0].split(",")[01]);initial=0;
-		console.log(old_x1);console.log(old_y1);
+		var old_x1=parseInt(bufferarray[0].split(",")[0]);old_y1=parseInt(bufferarray[0].split(",")[01]);initial=0;
+//		console.log(old_x1);console.log(old_y1);
         var svg;
         var svgWidth, svgHeight, svgMargin, svgSpace;
         var MarginSpace, MarginHeight, MarginWidth;
         var barchartWidth, barchartMargin, totalChartBars, maximumDataValue;
         var LabelOnYAxis,LabelOnYAxis ;
+		var charttype=1;
+//		var charttype="curvechart";
+		
 
         function drawBarChart()
         {
             svg = document.getElementsByTagName('svg')[0];
 
-            var barchart = document.getElementById('barchart');
 			svg.addEventListener('mouseover',function ()
             {
 					
@@ -168,10 +170,10 @@ newdataAxis:hover{
 
 						var posX = e.clientX;
 						var posY = e.clientY;
-						var index1=Math.floor(studentexamdata.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
-						if(index1>-1&& index1<studentexamdata.length){
+						var index1=Math.floor(bufferarray.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
+						if(index1>-1&& index1<bufferarray.length){
 //						console.log(index1);console.log(posX - MarginSpace -  10);console.log(MarginWidth)
-						var x1=parseInt(studentexamdata[index1].split(",")[0]),y1=parseInt(studentexamdata[index1].split(",")[1])
+						var x1=parseInt(bufferarray[index1].split(",")[0]),y1=parseInt(bufferarray[index1].split(",")[1])
 						document.getElementById('mousepos').style.top = posY+25+"px";
 						document.getElementById('mousepos').style.left = posX+25+"px";
 						document.getElementById('mousex').value = x1;
@@ -191,6 +193,7 @@ newdataAxis:hover{
 						
 			}, true);
 
+            var barchart = document.getElementById('barchart');
 
             barchart.addEventListener('click', function ()
             {
@@ -198,6 +201,8 @@ newdataAxis:hover{
                 ChartSettings();
                 drawAxis();
                 drawChart("Bar");
+				charttype="barchart";
+				console.log(charttype);
             }, false);
 
             var pointchart = document.getElementById('pointchart');
@@ -207,6 +212,8 @@ newdataAxis:hover{
                 ChartSettings();
                 drawAxis();
                 drawChart("Point");
+				charttype="pointchart";
+				console.log(charttype);
             }, false);
 			var pointchart = document.getElementById('linechart');
             pointchart.addEventListener('click', function ()
@@ -215,7 +222,9 @@ newdataAxis:hover{
                 ChartSettings();
                 drawAxis();
                 drawChart("Line");
-            }, false);
+				charttype="linechart";
+ 				console.log(charttype);
+           }, false);
 			var polychart = document.getElementById('polychart');
             polychart.addEventListener('click', function ()
             {
@@ -223,22 +232,56 @@ newdataAxis:hover{
                 ChartSettings();
                 drawAxis();
                 drawPoly();
+				charttype="polychart";
+				console.log(charttype);
             }, false);
-			var pathchart = document.getElementById('pathchart');
-            pathchart.addEventListener('click', function ()
+			var curvechart = document.getElementById('curvechart');
+            curvechart.addEventListener('click', function ()
             {
                 clear();
                 ChartSettings();
                 drawAxis();
-                drawPath();
-				drawChart("Line");
+                drawCurve();
+//				drawChart("Line");
 				drawChart("Point");
 
+				charttype="curvechart";
 
+				console.log(charttype);
 
             }, false);
 
-        }
+//        updateCharts();
+			 setTimeout(updateCharts,5000);
+
+		}
+		function updateCharts(){
+				console.log(charttype);
+		        clear();
+                ChartSettings();
+                drawAxis();
+				switch (charttype){
+				    case "barchart":
+                        drawChart("Bar");
+                        break;
+
+                    case "pointchart":
+                        drawChart("Point");
+                        break;
+                    case "Line":
+                        drawChart("linechart");
+                        break;
+                    case "polychart":
+						drawPoly();
+                         break;
+					case "curvechart":
+						drawCurve();
+						break;
+						
+			}
+			 setTimeout(updateCharts,5000);
+
+		}
 
         function clear()
         {
@@ -250,6 +293,7 @@ newdataAxis:hover{
 
         function ChartSettings()
         {
+
             svgMargin = 20;
             svgSpace = 60;
 
@@ -261,7 +305,7 @@ newdataAxis:hover{
             MarginWidth = svgMargin + svgWidth;
 
             barchartMargin = 15;
-//            totalChartBars = studentexamdata.length;
+//            totalChartBars = bufferarray.length;
             totalChartBars = 100;
 			totalChartLabels=15;
             barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
@@ -270,7 +314,7 @@ newdataAxis:hover{
             maximumDataValue = 0;
             for (var i = 0; i < totalChartBars; i++)
             {
-                var arrVal = studentexamdata[i].split(",");
+                var arrVal = bufferarray[i].split(",");
                 var barVal = parseInt(arrVal[1]);
                 if (parseInt(barVal) > parseInt(maximumDataValue))
                     maximumDataValue = barVal;
@@ -278,7 +322,7 @@ newdataAxis:hover{
 			maximumXValue = 0;
             for (var i = 0; i < totalChartBars; i++)
             {
-                var arrVal = studentexamdata[i].split(",");
+                var arrVal = bufferarray[i].split(",");
                 var barVal = parseInt(arrVal[0]);
                 if (parseInt(barVal) > parseInt(maximumXValue))
                     maximumXValue = barVal;
@@ -330,9 +374,9 @@ newdataAxis:hover{
             }
             for (var i = 0; i < totalChartLabels; i++)
             {
-				currVal=i*studentexamdata.length/totalChartLabels;
+				currVal=i*bufferarray.length/totalChartLabels;
 				currVal=currVal.toFixed(0);
-                arrVal = studentexamdata[currVal].split(",");
+                arrVal = bufferarray[currVal].split(",");
                 name = arrVal[0];
                 markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
 //                markerYPosition = MarginHeight + 20;
@@ -366,9 +410,9 @@ newdataAxis:hover{
             }
             for (var i = 0; i < totalChartLabels; i++)
             {
-				currVal=i*studentexamdata.length/totalChartLabels;
+				currVal=i*bufferarray.length/totalChartLabels;
 				currVal=currVal.toFixed(0);
-                arrVal = studentexamdata[currVal].split(",");
+                arrVal = bufferarray[currVal].split(",");
                 name = arrVal[0];
                 markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
                 markerYPosition = MarginHeight + 20;
@@ -424,9 +468,88 @@ newdataAxis:hover{
             svg.appendChild(line);
 
         }
-		function drawPath(x=0, y=0, rx=5,final=0) {
+		
+// The smoothing ratio
+const smoothing = 0.5
+
+
+
+// Properties of a line 
+// I:  - pointA (array) [x,y]: coordinates
+//     - pointB (array) [x,y]: coordinates
+// O:  - (object) { length: l, angle: a }: properties of the line
+const line = (pointA, pointB) => {
+  const lengthX = pointB[0] - pointA[0]
+  const lengthY = pointB[1] - pointA[1]
+  return {
+    length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+    angle: Math.atan2(lengthY, lengthX)
+  }
+}
+
+// Position of a control point 
+// I:  - current (array) [x, y]: current point coordinates
+//     - previous (array) [x, y]: previous point coordinates
+//     - next (array) [x, y]: next point coordinates
+//     - reverse (boolean, optional): sets the direction
+// O:  - (array) [x,y]: a tuple of coordinates
+const controlPoint = (current, previous, next, reverse) => {
+
+  // When 'current' is the first or last point of the array
+  // 'previous' or 'next' don't exist.
+  // Replace with 'current'
+  const p = previous || current
+  const n = next || current
+
+  // Properties of the opposed-line
+  const o = line(p, n)
+
+  // If is end-control-point, add PI to the angle to go backward
+  const angle = o.angle + (reverse ? Math.PI : 0)
+  const length = o.length * smoothing
+
+  // The control point position is relative to the current point
+  const x = current[0] + Math.cos(angle) * length
+  const y = current[1] + Math.sin(angle) * length
+  return [x, y]
+}
+
+// Create the bezier curve command 
+// I:  - point (array) [x,y]: current point coordinates
+//     - i (integer): index of 'point' in the array 'a'
+//     - a (array): complete array of points coordinates
+// O:  - (string) 'C x2,y2 x1,y1 x,y': SVG cubic bezier C command
+const bezierCommand = (point, i, a) => {
+
+  // start control point
+  const cps = controlPoint(a[i - 1], a[i - 2], point)
+
+  // end control point
+  const cpe = controlPoint(point, a[i - 1], a[i + 1], true)
+  return `C ${cps[0]},${cps[1]} ${cpe[0]},${cpe[1]} ${point[0]},${point[1]}`
+}
+
+// Render the svg <path> element 
+// I:  - points (array): points coordinates
+//     - command (function)
+//       I:  - point (array) [x,y]: current point coordinates
+//           - i (integer): index of 'point' in the array 'a'
+//           - a (array): complete array of points coordinates
+//       O:  - (string) a svg path command
+// O:  - (string): a Svg <path> element
+const svgPath = (points, command) => {
+  // build the d attributes by looping over the points
+  const d = points.reduce((acc, point, i, a) => i === 0
+    ? `M ${point[0]},${point[1]}`
+    : `${acc} ${command(point, i, a)}`
+  , '')
+  return `${d}`
+}
+
+		function drawCurve(x=0, y=0, rx=3,final=0) {
 			var points=[];
-			var examdata=studentexamdata;
+			var examdata=bufferarray;
+			points.push([MarginSpace, svgHeight]);
 			for (var i = 0; i < totalChartBars; i++)
             {
                 var arrchartVal = examdata[i].split(",");
@@ -439,6 +562,9 @@ newdataAxis:hover{
 
 			
 			}
+			points.push([MarginWidth+MarginSpace,svgHeight]);
+			
+			/*
 			var drawCmd="";
 			for(i=0;i<points.length-2;i++){
 			var dirY=points[i+2][1]-points[i][1];
@@ -457,11 +583,13 @@ newdataAxis:hover{
 			
 
 			drawCmd+="M"+points[i+1][0]+","+points[i+1][1]+" ";
-			drawCmd+="Q"+x2+","+y2+" ";
+			drawCmd+="T"+x2+","+y2+" ";
 			drawCmd+=" "+x1+","+y1+" ";
 
 			}
-			console.log(drawCmd);			
+			*/
+			drawCmd = svgPath(points, bezierCommand);
+//			console.log(drawCmd);
             var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
  
 
@@ -472,8 +600,9 @@ newdataAxis:hover{
             path.setAttributeNS(null, 'stroke', "red");
             path.setAttributeNS(null, 'stroke-width', rx);
 			path.setAttributeNS(null, 'class', 'lines');
-//			path.setAttributeNS(null, 'fill-opacity', 0.1);
-			path.setAttributeNS(null, 'id','pathline');
+			path.setAttributeNS(null, 'fill-opacity', 0.1);
+			path.setAttributeNS(null, 'stroke-opacity', 1);
+			path.setAttributeNS(null, 'id','curvehline');
 			
             svg.appendChild(path);
 		
@@ -572,10 +701,10 @@ newdataAxis:hover{
         }
 			
 		
-        function drawPoly(strokesize=5, fillcolour="blue",strokecolour="black",fillopacity=0.09) {
+        function drawPoly(strokesize=3, fillcolour="blue",strokecolour="black",fillopacity=0.09) {
 
 			var points="";
-			var examdata=studentexamdata;
+			var examdata=bufferarray;
 			for (var i = 0; i < totalChartBars; i++)
             {
                 var arrchartVal = examdata[i].split(",");
@@ -614,7 +743,7 @@ newdataAxis:hover{
 			
             for (var i = 0; i < totalChartBars; i++)
             {
-                var arrchartVal = studentexamdata[i].split(",");
+                var arrchartVal = bufferarray[i].split(",");
                 bcVal = parseInt(arrchartVal[1]);
                 bcHt = (bcVal * svgHeight / maximumDataValue);
                 bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
@@ -636,18 +765,18 @@ newdataAxis:hover{
                         break;
                     case "Path":
 						if (i==0)
-							drawPath(bcX, bcY, 5,-1);
+							drawCurve(bcX, bcY, 5,-1);
 						else if(totalChartBars-i==1) 
-							drawPath(bcX, bcY, 5,1); 
+							drawCurve(bcX, bcY, 5,1); 
 							else 
 
-                        drawPath(bcX, bcY, 5);
+                        drawCurve(bcX, bcY, 5);
                         drawEllipse(bcX, bcY, 5, 5);
                         break;
                 }
 
             }
-		old_x1=parseInt(studentexamdata[0].split(",")[0]);old_y1=parseInt(studentexamdata[0].split(",")[01]);
+		old_x1=parseInt(bufferarray[0].split(",")[0]);old_y1=parseInt(bufferarray[0].split(",")[01]);
 		if(i>=totalChartBars)initial=0;
 
 		}
@@ -658,7 +787,7 @@ var fs=document.getElementById("lines");
 var circles=0;
 var svgns="http://www.w3.org/2000/svg";
 var w=window.innerWidth;
-
+}
 function createfilter(posx,posy,sizex,sizey,type,data){
     var filter=document.createElementNS(svgns,"lines");
     filter.setAttribute("id","f"+circles);
@@ -688,7 +817,7 @@ function createcircle(posx,posy,radius,stroke,fill,filter){
     circle.setAttributeNS(null,"data-posx",posx);
     svg.appendChild(circle);
     console.log(circle);
-}
+
 
 for(i=0;i<10;i++){
     circles+=1;
@@ -696,7 +825,7 @@ for(i=0;i<10;i++){
 //this works - the parameters are (posx,posy,radius,stroke,fill,filter) but currently I can only use a filter that I have created in the html svg element as my code doesn't work
 }
 		
-		}
+}
         window.onload = drawBarChart;
     </script>
 </head>
@@ -755,7 +884,7 @@ for(i=0;i<10;i++){
         <br />
         <input type="radio" id="polychart" name="Chart" />Poly Line Chart
 		        <br />
-        <input type="radio" id="pathchart" name="Chart" />Path Chart
+        <input type="radio" id="curvechart" name="Chart" />Curve Chart
 
     </div>
 	    <div id="mousepos" max-width="10px">(
