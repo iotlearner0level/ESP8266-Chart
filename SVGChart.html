@@ -131,24 +131,30 @@ newdataAxis:hover{
     </style>
 
     <script type="text/javascript">
-        var bufferarray = new Array(100);var numlines=0;
+		var totalDataPoints=5000;var dataShiftVal=30;
+        var bufferArray = new Array(totalDataPoints);var numlines=0;
+		var dataArray = new Array(totalDataPoints);var totalDisplayPoints=150;var screenRefreshTimeout=3000;
 
 
-        bufferarray[0] = "01,80";
-        bufferarray[1] = "02,40";
-        bufferarray[2] = "03,70";
-        bufferarray[3] = "04,80";
-        bufferarray[4] = "05,30";
-        bufferarray[5] = "06,90";
-        bufferarray[6] = "07,70";
-        bufferarray[7] = "08,80";
-        bufferarray[8] = "09,100";
-        bufferarray[9] = "10,60";
+        dataArray[0] = "01,80";
+        dataArray[1] = "02,40";
+        dataArray[2] = "03,70";
+        dataArray[3] = "04,80";
+        dataArray[4] = "05,30";
+        dataArray[5] = "06,90";
+        dataArray[6] = "07,70";
+        dataArray[7] = "08,80";
+        dataArray[8] = "09,100";
+        dataArray[9] = "10,60";
 		var i=10;
-		for ( i=10;i<100;i++){
-			bufferarray[i] = i+","+Math.floor((Math.random() * 100) + 1);;
+		for ( i=10;i<totalDataPoints;i++){
+			dataArray[i] = i+","+Math.floor((Math.random() * 100) + 1);;
 			}
-		var old_x1=parseInt(bufferarray[0].split(",")[0]);old_y1=parseInt(bufferarray[0].split(",")[01]);initial=0;
+		bufferArray=dataArray.slice();
+		var old_x1=parseInt(bufferArray[0].split(",")[0]);old_y1=parseInt(bufferArray[0].split(",")[01]);initial=0;
+			console.log("bufferArray=");console.log(bufferArray);
+			console.log("dataArray=");console.log(dataArray);
+
 //		console.log(old_x1);console.log(old_y1);
         var svg;
         var svgWidth, svgHeight, svgMargin, svgSpace;
@@ -170,10 +176,10 @@ newdataAxis:hover{
 
 						var posX = e.clientX;
 						var posY = e.clientY;
-						var index1=Math.floor(bufferarray.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
-						if(index1>-1&& index1<bufferarray.length){
+						var index1=Math.floor(bufferArray.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
+						if(index1>-1&& index1<bufferArray.length){
 //						console.log(index1);console.log(posX - MarginSpace -  10);console.log(MarginWidth)
-						var x1=parseInt(bufferarray[index1].split(",")[0]),y1=parseInt(bufferarray[index1].split(",")[1])
+						var x1=parseInt(bufferArray[index1].split(",")[0]),y1=parseInt(bufferArray[index1].split(",")[1])
 						document.getElementById('mousepos').style.top = posY+25+"px";
 						document.getElementById('mousepos').style.left = posX+25+"px";
 						document.getElementById('mousex').value = x1;
@@ -255,7 +261,28 @@ newdataAxis:hover{
 			 setTimeout(updateCharts,5000);
 
 		}
+		function copyDataArrays(){
+			for ( var i=0;i<totalDisplayPoints+1;i++){
+			dataArray[i] = i+","+Math.floor((Math.random() * 100) + 1);
+			}
+//			console.log("bufferArray=");console.log(bufferArray);
+			bufferArray.splice(0,dataShiftVal);
+//			console.log("bufferArray=");console.log(bufferArray);
+			var newArray=dataArray;		//	console.log("newArray=");console.log(newArray);
+
+			newArray.splice(dataShiftVal,newArray.length);//console.log("newArray=");//console.log(newArray);
+			bufferArray=bufferArray.concat(newArray);//console.log("bufferArray=");//console.log(bufferArray);
+//			console.log("dataArray=");console.log(dataArray);
+		
+		}
 		function updateCharts(){
+				rate=document.getElementById("refreshrate").value;
+				totalDataPoints=document.getElementById("totaldatapoints").value;
+				totalDisplayPoints=document.getElementById("totaldisplaypoints").value;
+				dataShiftVal=document.getElementById("datashiftval").value;
+				screenRefreshTimeout=rate;
+				console.log(rate);
+				copyDataArrays();
 				console.log(charttype);
 		        clear();
                 ChartSettings();
@@ -268,8 +295,8 @@ newdataAxis:hover{
                     case "pointchart":
                         drawChart("Point");
                         break;
-                    case "Line":
-                        drawChart("linechart");
+                    case "linechart":
+                        drawChart("Line");
                         break;
                     case "polychart":
 						drawPoly();
@@ -279,7 +306,7 @@ newdataAxis:hover{
 						break;
 						
 			}
-			 setTimeout(updateCharts,5000);
+			 setTimeout(updateCharts,screenRefreshTimeout);
 
 		}
 
@@ -305,16 +332,16 @@ newdataAxis:hover{
             MarginWidth = svgMargin + svgWidth;
 
             barchartMargin = 15;
-//            totalChartBars = bufferarray.length;
-            totalChartBars = 100;
+//            totalChartBars = bufferArray.length;
+            totalChartBars = totalDisplayPoints;
 			totalChartLabels=15;
             barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
 			labelchartWidth=(svgWidth / totalChartLabels) - barchartMargin;
 
             maximumDataValue = 0;
-            for (var i = 0; i < totalChartBars; i++)
+            for (var i = 0; i < bufferArray.length; i++)
             {
-                var arrVal = bufferarray[i].split(",");
+                var arrVal = bufferArray[i].split(",");
                 var barVal = parseInt(arrVal[1]);
                 if (parseInt(barVal) > parseInt(maximumDataValue))
                     maximumDataValue = barVal;
@@ -322,7 +349,7 @@ newdataAxis:hover{
 			maximumXValue = 0;
             for (var i = 0; i < totalChartBars; i++)
             {
-                var arrVal = bufferarray[i].split(",");
+                var arrVal = bufferArray[i].split(",");
                 var barVal = parseInt(arrVal[0]);
                 if (parseInt(barVal) > parseInt(maximumXValue))
                     maximumXValue = barVal;
@@ -374,9 +401,9 @@ newdataAxis:hover{
             }
             for (var i = 0; i < totalChartLabels; i++)
             {
-				currVal=i*bufferarray.length/totalChartLabels;
+				currVal=i*bufferArray.length/totalChartLabels;
 				currVal=currVal.toFixed(0);
-                arrVal = bufferarray[currVal].split(",");
+                arrVal = bufferArray[currVal].split(",");
                 name = arrVal[0];
                 markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
 //                markerYPosition = MarginHeight + 20;
@@ -410,9 +437,9 @@ newdataAxis:hover{
             }
             for (var i = 0; i < totalChartLabels; i++)
             {
-				currVal=i*bufferarray.length/totalChartLabels;
+				currVal=i*bufferArray.length/totalChartLabels;
 				currVal=currVal.toFixed(0);
-                arrVal = bufferarray[currVal].split(",");
+                arrVal = bufferArray[currVal].split(",");
                 name = arrVal[0];
                 markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
                 markerYPosition = MarginHeight + 20;
@@ -548,7 +575,7 @@ const svgPath = (points, command) => {
 
 		function drawCurve(x=0, y=0, rx=3,final=0) {
 			var points=[];
-			var examdata=bufferarray;
+			var examdata=bufferArray;
 			points.push([MarginSpace, svgHeight]);
 			for (var i = 0; i < totalChartBars; i++)
             {
@@ -704,7 +731,7 @@ const svgPath = (points, command) => {
         function drawPoly(strokesize=3, fillcolour="blue",strokecolour="black",fillopacity=0.09) {
 
 			var points="";
-			var examdata=bufferarray;
+			var examdata=bufferArray;
 			for (var i = 0; i < totalChartBars; i++)
             {
                 var arrchartVal = examdata[i].split(",");
@@ -743,7 +770,7 @@ const svgPath = (points, command) => {
 			
             for (var i = 0; i < totalChartBars; i++)
             {
-                var arrchartVal = bufferarray[i].split(",");
+                var arrchartVal = bufferArray[i].split(",");
                 bcVal = parseInt(arrchartVal[1]);
                 bcHt = (bcVal * svgHeight / maximumDataValue);
                 bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
@@ -776,7 +803,7 @@ const svgPath = (points, command) => {
                 }
 
             }
-		old_x1=parseInt(bufferarray[0].split(",")[0]);old_y1=parseInt(bufferarray[0].split(",")[01]);
+		old_x1=parseInt(bufferArray[0].split(",")[0]);old_y1=parseInt(bufferArray[0].split(",")[01]);
 		if(i>=totalChartBars)initial=0;
 
 		}
@@ -890,6 +917,16 @@ for(i=0;i<10;i++){
 	    <div id="mousepos" max-width="10px">(
         <input type="input"  id="mousex" name="posx" class='labels' max-width='1' /> , 
         <input type="input" id="mousey" name="poxy" class='labels' max-width='1' />)
+     </div>
+    </div>
+	    <div id="parameters" >
+        <input type="input"  id="refreshrate" name="refresh" class='parameters' value=2500 />Refresh Rate <br> 
+        Total Data Points<input type="input" id="totaldatapoints" name="poxy" class='paramters' value=1000 />
+		<br> 
+        Total Display Points<input type="input" id="totaldisplaypoints" name="poxy" class='paramters' value=150 />
+				<br> 
+        Data Scroll Value<input type="input" id="datashiftval" name="poxy" class='paramters' value=30 />
+
      </div>
 
 </body>
