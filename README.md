@@ -1,3 +1,8 @@
+## To test the javascript, check below:
+
+
+<a href="/SVGChart 2.html">Visit W3Schools.com!</a>
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/iotlearner0level/ESP8266-Chart/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
