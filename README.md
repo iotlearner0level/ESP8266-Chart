@@ -1,7 +1,7 @@
 ## To test the javascript, check below:
 
 
-<a href="/SVGChart 2.html">Visit W3Schools.com!</a>
+<a href="./SVGChart 2.html">Visit W3Schools.com!</a>
 
 ## Welcome to GitHub Pages
 
