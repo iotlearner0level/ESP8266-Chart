@@ -6,6 +6,8 @@
 
 #mousepos {
   position: absolute;
+  width:1;
+  max-width:100px;
   opacity:0.9;
   z-index: 9;
   background-color: #f1f1f1;
@@ -14,6 +16,10 @@
   filter:blur(2);
   filter:drop-shadow(8px 8px 10px gray);
   
+}
+.labels{
+max-width:25px;
+
 }
 line:hover {
     stroke-width:  "12";
@@ -157,7 +163,7 @@ newdataAxis:hover{
             var barchart = document.getElementById('barchart');
 			svg.addEventListener('mouseover',function ()
             {
-						for(var counter=0;counter<numlines;counter++){
+						for(var counter=1;counter<numlines;counter++){
 						var elem=document.getElementById("vertline");
 						if(elem){
 						elem.remove();numlines--;
@@ -180,13 +186,7 @@ newdataAxis:hover{
 						document.getElementById('mousey').value = y1;
 						
 						drawVert(posX,MarginHeight,posX,svgMargin,1,"cyan","ticks","vertline");//Y-Axis
-						drawVert(svgWidth,posY,MarginSpace,posY,1,"green","ticks","vertline");//X-Axis
-
-						for(var counter=2;counter<numlines;counter++){
-						var elem=document.getElementById("vertline");
-						if(elem){
-						elem.remove();numlines--;
-						}}
+						drawVert(MarginWidth+MarginSpace,posY,MarginSpace,posY,1,"green","ticks","vertline");//X-Axis
 
 
 
@@ -380,10 +380,10 @@ newdataAxis:hover{
             rect.setAttributeNS(null, 'width', wd);
             rect.setAttributeNS(null, 'height', ht);
             rect.setAttributeNS(null, 'fill', "yellow");
-            rect.setAttributeNS(null, 'fill-opacity', "0.05");
+            rect.setAttributeNS(null, 'fill-opacity', "0.5");
             rect.setAttributeNS(null, 'stroke', "green");
             rect.setAttributeNS(null, 'stroke-opacity', "0.9");
-            rect.setAttributeNS(null, 'stroke-width', "5");
+            rect.setAttributeNS(null, 'stroke-width', "1");
 			rect.setAttributeNS(null, 'class', 'lines');
 			
 
@@ -504,7 +504,7 @@ newdataAxis:hover{
                 switch (chart)
                 {
                     case "Bar":
-                        drawRectangleForChart(bcX, bcY, barchartWidth, bcHt, true);
+                        drawRectangleForChart(bcX, bcY, labelchartWidth, bcHt, true);
                         break;
 
                     case "Point":
@@ -625,12 +625,9 @@ for(i=0;i<10;i++){
         <br />
         <input type="radio" id="polychart" name="Chart" />Poly Line Chart
     </div>
-	    <div id="mousepos">
-        <br />
-        <input type="input"  id="mousex" name="posx" class='labels' />X-Value 
-        <br />
-        <input type="input" id="mousey" name="poxy" class='labels' />Y-Value
-        <br />
+	    <div id="mousepos" max-width="10px">(
+        <input type="input"  id="mousex" name="posx" class='labels' max-width='1' /> , 
+        <input type="input" id="mousey" name="poxy" class='labels' max-width='1' />)
      </div>
 
 </body>
