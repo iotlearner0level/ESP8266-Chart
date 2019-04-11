@@ -2,7 +2,7 @@
 
 Running instance:
 
-<a href="https://iotlearner0level.github.io/ESP8266-Chart/SVGChart%202.html">SVG Chartson Github.io</a>
+<a href="https://iotlearner0level.github.io/ESP8266-Chart/SVGChart2.html">SVG Charts on Github.io</a>
 
 Source Code
 
