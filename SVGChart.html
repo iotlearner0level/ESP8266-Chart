@@ -40,7 +40,7 @@ max-width:20px;
 
 }
 .lines:hover {
-    stroke_opacity:1;
+    stroke_width:1;
 
 	filter:	url(#grad1)";
 }
@@ -151,9 +151,9 @@ newdataAxis:hover{
 
 
     <script type="text/javascript">
-		var totalDataPoints=5000;var dataShiftVal=30;
+		var totalDataPoints=150000;var dataShiftVal=30;
         var bufferArray = new Array(totalDataPoints);var numlines=0;
-		var dataArray = new Array(totalDataPoints);var totalDisplayPoints=150;var screenRefreshTimeout=3000;
+		var dataArray = new Array(totalDataPoints);var totalDisplayPoints=15000;var screenRefreshTimeout=3000;
 		var		stroke_colour= "red";
 		var		fill_colour="blue";
 		var		stroke_size=4;
@@ -894,7 +894,7 @@ for(i=0;i<10;i++){
 
 <body>
     <div id="chartcontainer">
-        <svg id="svgcontainer" height="600" width=80%>
+        <svg id="svgcontainer" height=800px width=100%>
 		 <defs>
     <filter id="f1" x="0" y="0">
       <feOffset in="SourceGraphic" stdDeviation="15" />
@@ -955,10 +955,10 @@ for(i=0;i<10;i++){
 
 <td>
 	 <div id="parameters" ><table class="parameters"><caption>Update Parameters</caption>
-        <tr><td>Refresh Rate</td><td><input type="input"  id="refreshrate" name="refresh" class='parameters' value=2500 /></td></tr>  
+        <tr><td>Refresh Rate</td><td><input type="input"  id="refreshrate" name="refresh" class='parameters' value=500 /></td></tr>  
         <tr><td>Total Data Points</td><td><input type="input" id="totaldatapoints" name="poxy" class='paramters' value=1000 /></td></tr> 
         <tr><td>Total Display Points</td><td><input type="input" id="totaldisplaypoints" name="poxy" class='paramters' value=150 /></td></tr> 
-	    <tr><td>Data Scroll Value</td><td><input type="input" id="datashiftval" name="poxy" class='paramters' value=30 /></td></tr> 
+	    <tr><td>Data Scroll Value</td><td><input type="input" id="datashiftval" name="poxy" class='paramters' value=5 /></td></tr> 
 		</table>
      </div>
 	 	    
