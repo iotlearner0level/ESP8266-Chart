@@ -3,36 +3,59 @@
 <head>
     <title>CreateChartusingSVG</title>
 	 <style type="text/css">
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
 
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+#curvehline:hover{
+	fill_opacity:1;
+
+}
 #mousepos {
   position: absolute;
-  width:1;
+  width:100px;
   max-width:100px;
-  opacity:0.9;
+  opacity:0.5;
   z-index: 9;
   background-color: #f1f1f1;
   text-align: center;
   border: 1px solid #d3d3d3;
-  filter:blur(2);
+  filter:"blur(2)";
   filter:drop-shadow(8px 8px 10px gray);
   
 }
 .labels{
-max-width:25px;
+max-width:20px;
 
 }
-line:hover {
-    stroke-width:  "12";
-	opacity:0.2;
-	filter:	blur(2);
-}
-pollyline:hover {
+.lines:hover {
+    stroke_opacity:1;
 
-	fill:url(#grad1);
+	filter:	url(#grad1)";
+}
+.ticks:hover {
+    stroke-width:2;
+
+	filter:	url(#grad1)";
+}
+#polyline:hover {
+
+	fill:url(#grad2);
 }
 text:hover {
-    stroke-width:  "12";
-	opacity:0.8;
+    stroke-width:  12;
+	opacity:1;
 	font-stretch:expanded;
 	font-weight: bold;
     box-shadow: 0 0 20px rgba(31,31,31,.2),
@@ -40,32 +63,29 @@ text:hover {
         inset 5px 9px 10px rgba(31,31,31,.6),
         inset 0 0 25px rgba(224,224,224,.25);	
 
-	filter:blur(10);
+	filter:"blur(3)";
 }
-circle:hover {
-//  fill: #009966;
-//  transform:  scale(1.5);
-    stroke-width:  "2";
+#circle:hover {
+//  fill: "#009966";
+//  transform:  "scale(1.5");
+    stroke-width:  2;
 	opacity:0.6;
-
-  filter:	blur(1.5);
+	filter:	"blur(1.5)";
 }
 newdataAxis:hover{
-		stroke-width:"10";
+		stroke-width:10;
 		}
 
 	   #chartcontainer 
 
-       {  filter:drop-shadow(8px 8px 10px gray);filter:blur(2.4);}
+       {  filter:drop-shadow(8px 8px 10px gray);filter:"blur(2.4)";}
 
 
       #charttype 
       { border: double;
 	  filter:blur(24);}
-	  #charttype:hover{ filter:drop-shadow(8px 8px 10px gray);
-	  
+	  #charttype:hover{ filter:drop-shadow(8px 8px 10px gray);}
 	  }
-}
 
 	svg:hover .text1 .lines {
 		{style:"bold";
@@ -128,12 +148,17 @@ newdataAxis:hover{
 //        #charttype 
  //       { border: double; height: 75px; width: 100px; position: fixed; left:750px; }
     </style>
-    </style>
+
 
     <script type="text/javascript">
 		var totalDataPoints=5000;var dataShiftVal=30;
         var bufferArray = new Array(totalDataPoints);var numlines=0;
 		var dataArray = new Array(totalDataPoints);var totalDisplayPoints=150;var screenRefreshTimeout=3000;
+		var		stroke_colour= "red";
+		var		fill_colour="blue";
+		var		stroke_size=4;
+		var		stroke_opacity=0.9;
+		var		fill_opacity=0.1;
 
 
         dataArray[0] = "01,80";
@@ -280,6 +305,14 @@ newdataAxis:hover{
 				totalDataPoints=document.getElementById("totaldatapoints").value;
 				totalDisplayPoints=document.getElementById("totaldisplaypoints").value;
 				dataShiftVal=document.getElementById("datashiftval").value;
+				
+				stroke_colour=document.getElementById("stroke_colour").value;
+				fill_colour=document.getElementById("fill_colour").value;
+				stroke_size=document.getElementById("stroke_size").value;
+				stroke_opacity=document.getElementById("stroke_opacity").value;
+				fill_opacity=document.getElementById("fill_opacity").value;
+				
+				
 				screenRefreshTimeout=rate;
 				console.log(rate);
 				copyDataArrays();
@@ -459,11 +492,11 @@ newdataAxis:hover{
             rect.setAttributeNS(null, 'y', y);
             rect.setAttributeNS(null, 'width', wd);
             rect.setAttributeNS(null, 'height', ht);
-            rect.setAttributeNS(null, 'fill', "yellow");
-            rect.setAttributeNS(null, 'fill-opacity', "0.5");
-            rect.setAttributeNS(null, 'stroke', "green");
-            rect.setAttributeNS(null, 'stroke-opacity', "0.9");
-            rect.setAttributeNS(null, 'stroke-width', "1");
+            rect.setAttributeNS(null, 'fill', fill_colour);
+            rect.setAttributeNS(null, 'fill-opacity', fill_opacity);
+            rect.setAttributeNS(null, 'stroke', stroke_colour);
+            rect.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+            rect.setAttributeNS(null, 'stroke-width', stroke_size);
 			rect.setAttributeNS(null, 'class', 'lines');
 			
 
@@ -622,13 +655,12 @@ const svgPath = (points, command) => {
 
 			path.setAttributeNS(null, 'd',drawCmd);
 			
-            path.setAttributeNS(null, 'stroke-width', rx);
-            path.setAttributeNS(null, 'fill', "cyan");
-            path.setAttributeNS(null, 'stroke', "red");
-            path.setAttributeNS(null, 'stroke-width', rx);
+    path.setAttributeNS(null, 'fill', fill_colour);
+    path.setAttributeNS(null, 'fill-opacity', fill_opacity);
+    path.setAttributeNS(null, 'stroke', stroke_colour);
+    path.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+    path.setAttributeNS(null, 'stroke-width', stroke_size);
 			path.setAttributeNS(null, 'class', 'lines');
-			path.setAttributeNS(null, 'fill-opacity', 0.1);
-			path.setAttributeNS(null, 'stroke-opacity', 1);
 			path.setAttributeNS(null, 'id','curvehline');
 			
             svg.appendChild(path);
@@ -642,7 +674,7 @@ const svgPath = (points, command) => {
 			polyline.setAttributeNS(null, 'stroke', strokecolour);
 			console.log(fillcolour);
             polyline.setAttributeNS(null, 'fill', fillcolour);
-            polyline.setAttributeNS(null, 'fill-opacity',fillopacity);
+            polyline.setAttributeNS(null, 'fill_opacity',fillopacity);
 			
 
 			polyline.setAttributeNS(null, 'class', 'lines');
@@ -750,11 +782,12 @@ const svgPath = (points, command) => {
     
             var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
             polyline.setAttributeNS(null, 'points', points)
-            polyline.setAttributeNS(null, 'stroke-width', strokesize);
-			polyline.setAttributeNS(null, 'stroke', strokecolour);
-			console.log(fillcolour);
-            polyline.setAttributeNS(null, 'fill', fillcolour);
-            polyline.setAttributeNS(null, 'fill-opacity',fillopacity);
+    polyline.setAttributeNS(null, 'fill', fill_colour);
+    polyline.setAttributeNS(null, 'fill-opacity', fill_opacity);
+    polyline.setAttributeNS(null, 'stroke', stroke_colour);
+    polyline.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+    polyline.setAttributeNS(null, 'stroke-width', stroke_size);
+            polyline.setAttributeNS(null, 'id','polyline');
 			
 
 			polyline.setAttributeNS(null, 'class', 'lines');
@@ -807,7 +840,7 @@ const svgPath = (points, command) => {
 		if(i>=totalChartBars)initial=0;
 
 		}
-		function filters(){
+function filters(){
 		
 		var svg=document.getElementById("lines");
 var fs=document.getElementById("lines");
@@ -838,9 +871,11 @@ function createcircle(posx,posy,radius,stroke,fill,filter){
     circle.setAttributeNS(null,"cx",posx);
     circle.setAttributeNS(null,"cy",posy);
     circle.setAttributeNS(null,"r",radius);
-    circle.setAttributeNS(null,"stroke-width",stroke);
-    circle.setAttributeNS(null,"fill",fill);
-    circle.setAttributeNS(null,"filter",filter);
+    circle.setAttributeNS(null, 'fill', fill_colour);
+    circle.setAttributeNS(null, 'fill-opacity', fill_opacity);
+    circle.setAttributeNS(null, 'stroke', stroke_colour);
+    circle.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+    circle.setAttributeNS(null, 'stroke-width', stroke_size);
     circle.setAttributeNS(null,"data-posx",posx);
     svg.appendChild(circle);
     console.log(circle);
@@ -888,47 +923,66 @@ for(i=0;i<10;i++){
         <fePointLight x="-5000" y="-10000" z="20000" />
       </feSpecularLighting>
     </filter>
-       <filter id="grad1">
+       <filter id="grad2">
             <feImage xlink:href="#boxRect" result="grad"/>
             <feDisplacementMap scale="10" xChannelSelector="R" yChannelSelector="G" in="SourceGraphic" in2="grad"/>
         </filter>
 	
-  </defs>
+ 
 
   </defs>
   <rect x="15" y="15" width="50" height="60" stroke="green" stroke-width="3"
-  style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.05;stroke-opacity:0.9"  filter="url(#f4)" />
+  style="fill:blue;stroke:pink;stroke-width:5;fill_opacity:0.05;stroke_opacity:0.9"  filter="url(#f4)" />
 
         </svg>
     </div>
-    <div id="charttype">
-        <br />
-        <input type="radio"  id="barchart" name="Chart" />Bar Chart 
-        <br />
-        <input type="radio" id="pointchart" name="Chart" />Point Chart
-        <br />
-        <input type="radio" id="linechart" name="Chart" />Line Chart
-        <br />
-        <input type="radio" id="polychart" name="Chart" />Poly Line Chart
-		        <br />
-        <input type="radio" id="curvechart" name="Chart" />Curve Chart
+<table>
+<tr>
+<td>
+    <div id="charttype"><table><caption>Chart Type</caption>
+        <tr><td>Bar Chart</td><td><input type="radio"  id="barchart" name="Chart" /> </td></tr> 
+        <tr><td>Point Chart</td><td><input type="radio" id="pointchart" name="Chart" /></td></tr> 
+        <tr><td>Line Chart</td><td><input type="radio" id="linechart" name="Chart" /></td></tr> 
+        <tr><td>Poly Line Chart</td><td><input type="radio" id="polychart" name="Chart" /></td></tr> 
+		<tr><td>Curve Chart</td><td><input type="radio" id="curvechart" name="Chart" /></td></tr>
+		</table> 
+	</div>
 
-    </div>
-	    <div id="mousepos" max-width="10px">(
-        <input type="input"  id="mousex" name="posx" class='labels' max-width='1' /> , 
-        <input type="input" id="mousey" name="poxy" class='labels' max-width='1' />)
+
+</td>
+
+
+
+<td>
+	 <div id="parameters" ><table class="parameters"><caption>Update Parameters</caption>
+        <tr><td>Refresh Rate</td><td><input type="input"  id="refreshrate" name="refresh" class='parameters' value=2500 /></td></tr>  
+        <tr><td>Total Data Points</td><td><input type="input" id="totaldatapoints" name="poxy" class='paramters' value=1000 /></td></tr> 
+        <tr><td>Total Display Points</td><td><input type="input" id="totaldisplaypoints" name="poxy" class='paramters' value=150 /></td></tr> 
+	    <tr><td>Data Scroll Value</td><td><input type="input" id="datashiftval" name="poxy" class='paramters' value=30 /></td></tr> 
+		</table>
      </div>
-    </div>
-	    <div id="parameters" >
-        <input type="input"  id="refreshrate" name="refresh" class='parameters' value=2500 />Refresh Rate <br> 
-        Total Data Points<input type="input" id="totaldatapoints" name="poxy" class='paramters' value=1000 />
-		<br> 
-        Total Display Points<input type="input" id="totaldisplaypoints" name="poxy" class='paramters' value=150 />
-				<br> 
-        Data Scroll Value<input type="input" id="datashiftval" name="poxy" class='paramters' value=30 />
+	 	    
+</td>
 
+
+<td>
+	<div id="colors" >	<table class="parameters"><caption>Line width/Colour</caption>
+        <tr><td>Stroke colour</td><td><input type="input"  id="stroke_colour" name="refresh" class='parameters' value="red" /> </td></tr> 
+        <tr><td>Fill Colour</td><td><input type="input" id="fill_colour" name="poxy" class='paramters' value="blue" />  </td></tr> 
+        <tr><td>Stroke size</td><td><input type="input" id="stroke_size" name="poxy" class='paramters' value=5 />	 </td></tr> 
+        <tr><td>Stroke Opacity</td><td><input type="input" id="stroke_opacity" name="poxy" class='paramters' value=0.9 /> </td></tr>
+		<tr><td>Fill Opacity</td><td><input type="input" id="fill_opacity" name="poxy" class='paramters' value=0.1 /> </td></tr>
+
+		</table>
      </div>
-
+</td>
+<tr>
+</table>
+    </div>
+	    <div id="mousepos" max-width="10px"><table><tr>
+        <td><input type="input"  id="mousex" name="posx" class='labels' max-width='1' /></td> 
+        <td><input type="input" id="mousey" name="poxy" class='labels' max-width='1' /></td></tr></tr>
+     </div>
 </body>
 
 </html>
