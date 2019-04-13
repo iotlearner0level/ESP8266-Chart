@@ -1,4 +1,4 @@
-## To test the javascript, check below:
+## To test the HTML/javascript, check below:
 
 Running instance:
 
@@ -11,25 +11,27 @@ Source Code
 
 <a href="SVGChart 2.html">SVG Charts</a>
 
-## Welcome to GitHub Pages
+## Display data in a buffer in a moving/dynamic graph
 
-You can use the [editor on GitHub](https://github.com/iotlearner0level/ESP8266-Chart/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+This experiment is in Javascript/HTML5/SVG which runs inside a browser window. It just displays the content of the buffer in the SVG window.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+This data buffer could be filled from various sources as we will investigate later...
 
-### Markdown
+### Work in progress
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
+It is a work in progress. Only a few parts work:
 ```markdown
 Syntax highlighted code block
+- SVG Graph window
+- ESP server is able to render the page 
+- A websocket connection is also established
+
 
 # Header 1
 ## Header 2
 ### Header 3
 
-- Bulleted
-- List
+
 
 1. Numbered
 2. List
