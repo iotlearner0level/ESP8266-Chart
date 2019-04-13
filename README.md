@@ -4,6 +4,9 @@ Running instance:
 
 <a href="https://iotlearner0level.github.io/ESP8266-Chart/SVGChart.html">SVG Charts on Github.io</a>
 
+<a href="https://iotlearner0level.github.io/ESP8266-Chart/data/chart.html">Arduino Version of Charts</a>
+
+
 Source Code
 
 <a href="SVGChart 2.html">SVG Charts</a>
