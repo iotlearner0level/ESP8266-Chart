@@ -1,0 +1,1069 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>CreateChartusingSVG</title>
+	 <style type="text/css">
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+#curvehline:hover{
+	fill-opacity:1;
+
+}
+#mousepos {
+  position: absolute;
+  width:100px;
+  max-width:100px;
+  opacity:0.5;
+  z-index: 9;
+  background-color: #f1f1f1;
+  text-align: center;
+  border: 1px solid #d3d3d3;
+  filter:url(#f1);
+  filter:drop-shadow(8px 8px 10px gray);
+  
+}
+.labels{
+max-width:20px;
+
+}
+.lines:hover {
+    stroke_width:1;
+
+	filter:	url(#grad1);
+}
+.ticks:hover {
+    stroke-width:2;
+
+	filter:	url(#grad1);
+}
+#polyline:hover {
+
+	fill:url(#grad2);
+}
+text:hover {
+    stroke-width:  12;
+	opacity:1;
+	font-stretch:expanded;
+	font-weight: bold;
+    box-shadow: 0 0 20px rgba(31,31,31,.2),
+        5px 9px 10px rgba(224,224,224,.65),
+        inset 5px 9px 10px rgba(31,31,31,.6),
+        inset 0 0 25px rgba(224,224,224,.25);	
+
+	filter:"blur(3)";
+}
+#circle:hover {
+//  fill: "#009966";
+//  transform:  scale(1.5");
+    stroke-width:  2;
+	opacity:0.6;
+	filter:	"blur(1.5)";
+}
+newdataAxis:hover{
+		stroke-width:10;
+		}
+
+	   #chartcontainer 
+
+       {  filter:drop-shadow(8px 8px 10px gray);filter:"blur(2.4)";}
+
+
+      #charttype 
+      { border: double;
+	  filter:blur(24);}
+	  #charttype:hover{ filter:drop-shadow(8px 8px 10px gray);}
+	  }
+
+	svg:hover .text1 .lines {
+		style:"bold";
+		transform:  scale(1.5);
+		}
+	.text1{
+	filter:url(#f4);
+	}
+	svg {background-color: black;}
+	.st0{fill:#E2E8E3;}
+	.head, .head path {
+		fill:#c0392b;
+	}
+	.background{fill:#B5C1B7;}
+	.light{
+		fill:url(#SVGID_1_);
+		opacity: 0;
+		transition: opacity .5s ease-in 6s;
+	}
+	svg:hover .light {
+		opacity: 1;
+	}
+
+	.inner-lamp{
+		fill:grey; 
+		transition: fill .5s ease-in 6s;
+	}
+	svg:hover .inner-lamp {
+		fill: #FBFFF8;
+	}
+	.cable{
+		fill:none;
+		stroke:#000000;
+		stroke-width:3;
+	}
+	
+	
+	.st86{fill:#9FAAA0;}
+	
+	#cable {
+		stroke: #FFF2B1;
+		stroke-dasharray: 4000 4000;
+		stroke-dashoffset: 4000;
+		stroke-width: 4;
+
+		transition: stroke-dashoffset 8s linear;
+	}
+	svg:hover #cable {
+		stroke-dashoffset: 0;
+	}
+	svg:hover circle {
+		fill: yellow;
+	}
+
+
+
+ //       #chartcontainer 
+ //       { height: 550px; width: 600px; border: double; background-color:aliceblue; position: fixed; top:100px; left: 500px; }
+
+//        #charttype 
+ //       { border: double; height: 75px; width: 100px; position: fixed; left:750px; }
+    </style>
+
+
+    <script type="text/javascript">
+		var totalDataPoints=150000;var dataShiftVal=30;
+        var bufferArray = new Array(totalDataPoints);var numlines=0;
+		var dataArray = new Array(totalDataPoints);var totalDisplayPoints=15000;var screenRefreshTimeout=3000;
+		var		stroke_colour= "red";
+		var		fill_colour="blue";
+		var		stroke_size=4;
+		var		stroke_opacity=0.9;
+		var		fill_opacity=0.1;
+		var 	smoothing = 0.5
+
+        dataArray[0] = "01,80";
+        dataArray[1] = "02,40";
+        dataArray[2] = "03,70";
+        dataArray[3] = "04,80";
+        dataArray[4] = "05,30";
+        dataArray[5] = "06,90";
+        dataArray[6] = "07,70";
+        dataArray[7] = "08,80";
+        dataArray[8] = "09,100";
+        dataArray[9] = "10,60";
+		var i=10;
+		for ( i=10;i<totalDataPoints;i++){
+			dataArray[i] = i+","+Math.floor((Math.random() * 100) + 1);;
+			}
+		bufferArray=dataArray.slice();
+		var old_x1=parseInt(bufferArray[0].split(",")[0]);old_y1=parseInt(bufferArray[0].split(",")[01]);initial=0;
+			console.log("bufferArray=");console.log(bufferArray);
+			console.log("dataArray=");console.log(dataArray);
+
+//		console.log(old_x1);console.log(old_y1);
+        var svg;
+        var svgWidth, svgHeight, svgMargin, svgSpace;
+        var MarginSpace, MarginHeight, MarginWidth;
+        var barchartWidth, barchartMargin, totalChartBars, maximumDataValue;
+        var LabelOnYAxis,LabelOnYAxis ;
+		var charttype=1;
+//		var charttype="curvechart";
+		
+    var ws = null;
+    function ge(s){ return document.getElementById(s);}
+    function ce(s){ return document.createElement(s);}
+    function stb(){ window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight); }
+    function sendBlob(str){
+      var buf = new Uint8Array(str.length);
+      for (var i = 0; i < str.length; ++i) buf[i] = str.charCodeAt(i);
+      ws.send(buf);
+    }
+    function addMessage(m){
+      var tarea=ge("dbg");
+      tarea.append(m);
+	  tarea.append("\n");
+	  tarea.scrollTop = tarea.scrollHeight;
+      stb();
+    }
+    function startSocket(){
+      ws = new WebSocket('ws://'+document.location.host+'/ws',['arduino']);
+      ws.binaryType = "arraybuffer";
+      ws.onopen = function(e){
+        addMessage("Connected");
+      };
+      ws.onclose = function(e){
+        addMessage("Disconnected");
+      };
+      ws.onerror = function(e){
+        console.log("ws error", e);
+        addMessage("Error");
+      };
+      ws.onmessage = function(e){
+        var msg = "";
+        if(e.data instanceof ArrayBuffer){
+          msg = "BIN:";
+          var bytes = new Uint8Array(e.data);
+          for (var i = 0; i < bytes.length; i++) {
+            msg += String.fromCharCode(bytes[i]);
+          }
+        } else {
+          msg = "TXT:"+e.data;
+        }
+        addMessage(msg);
+      };
+      ge("input_el").onkeydown = function(e){
+        stb();
+        if(e.keyCode == 13 && ge("input_el").value != ""){
+          ws.send(ge("input_el").value);
+          ge("input_el").value = "";
+        }
+      }
+    }
+    function startEvents(){
+      var es = new EventSource('/events');
+      es.onopen = function(e) {
+        addMessage("Events Opened");
+      };
+      es.onerror = function(e) {
+        if (e.target.readyState != EventSource.OPEN) {
+          addMessage("Events Closed");
+        }
+      };
+      es.onmessage = function(e) {
+        addMessage("Event: " + e.data);
+      };
+      es.addEventListener('ota', function(e) {
+        addMessage("Event[ota]: " + e.data);
+      }, false);
+    }
+    function wsSocketsInit(){
+      startSocket();
+      startEvents();
+    }
+
+        function drawBarChart()
+        {
+            svg = document.getElementsByTagName('svg')[0];
+
+			svg.addEventListener('mouseover',function ()
+            {
+					
+						var e = window.event;
+
+						var posX = e.clientX;
+						var posY = e.clientY;
+						var index1=Math.floor(bufferArray.length*(posX - MarginSpace - 10)/ (MarginWidth)) ;
+						if(index1>-1&& index1<bufferArray.length){
+//						console.log(index1);console.log(posX - MarginSpace -  10);console.log(MarginWidth)
+						var x1=parseInt(bufferArray[index1].split(",")[0]),y1=parseInt(bufferArray[index1].split(",")[1])
+						document.getElementById('mousepos').style.top = posY+25+"px";
+						document.getElementById('mousepos').style.left = posX+25+"px";
+						document.getElementById('mousex').value = x1;
+						document.getElementById('mousey').value = y1;
+						bcHt = (y1 * svgHeight / maximumDataValue);
+
+						bcY = (MarginHeight - bcHt - 2);
+
+						updateHVMarker(posX,MarginHeight,posX,svgMargin,"hmarker",);//Y-Axis
+						updateHVMarker(MarginWidth+MarginSpace,bcY,MarginSpace,bcY,"vmarker");//X-Axis
+
+						
+
+						}
+
+ 
+						
+			}, true);
+
+            var barchart = document.getElementById('barchart');
+
+            barchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Bar");
+				charttype="barchart";
+				console.log(charttype);
+            }, false);
+
+            var pointchart = document.getElementById('pointchart');
+            pointchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Point");
+				charttype="pointchart";
+				console.log(charttype);
+            }, false);
+			var pointchart = document.getElementById('linechart');
+            pointchart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawChart("Line");
+				charttype="linechart";
+ 				console.log(charttype);
+           }, false);
+			var polychart = document.getElementById('polychart');
+            polychart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawPoly();
+				charttype="polychart";
+				console.log(charttype);
+            }, false);
+			var curvechart = document.getElementById('curvechart');
+            curvechart.addEventListener('click', function ()
+            {
+                clear();
+                ChartSettings();
+                drawAxis();
+                drawCurve();
+//				drawChart("Line");
+				drawChart("Point");
+
+				charttype="curvechart";
+
+				console.log(charttype);
+
+            }, false);
+
+//        updateCharts();
+			 setTimeout(updateCharts,5000);
+			 wsSocketsInit();
+
+		}
+		function copyDataArrays(){
+			for ( var i=0;i<totalDisplayPoints+1;i++){
+			dataArray[i] = i+","+Math.floor((Math.random() * 100) + 1);
+			}
+//			console.log("bufferArray=");console.log(bufferArray);
+			bufferArray.splice(0,dataShiftVal);
+//			console.log("bufferArray=");console.log(bufferArray);
+			var newArray=dataArray;		//	console.log("newArray=");console.log(newArray);
+
+			newArray.splice(dataShiftVal,newArray.length);//console.log("newArray=");//console.log(newArray);
+			bufferArray=bufferArray.concat(newArray);//console.log("bufferArray=");//console.log(bufferArray);
+//			console.log("dataArray=");console.log(dataArray);
+		
+		}
+		function updateCharts(){
+				rate=document.getElementById("refreshrate").value;
+				totalDataPoints=document.getElementById("totaldatapoints").value;
+				totalDisplayPoints=document.getElementById("totaldisplaypoints").value;
+				dataShiftVal=document.getElementById("datashiftval").value;
+				smoothing=document.getElementById("smoothing").value;
+				stroke_colour=document.getElementById("stroke_colour").value;
+				fill_colour=document.getElementById("fill_colour").value;
+				stroke_size=document.getElementById("stroke_size").value;
+				stroke_opacity=document.getElementById("stroke_opacity").value;
+				fill_opacity=document.getElementById("fill_opacity").value;
+				
+				
+				screenRefreshTimeout=rate;
+				console.log(rate);
+				copyDataArrays();
+				console.log(charttype);
+		        clear();
+                ChartSettings();
+                drawAxis();
+				switch (charttype){
+				    case "barchart":
+                        drawChart("Bar");
+                        break;
+
+                    case "pointchart":
+                        drawChart("Point");
+                        break;
+                    case "linechart":
+                        drawChart("Line");
+                        break;
+                    case "polychart":
+						drawPoly();
+                         break;
+					case "curvechart":
+						drawCurve();
+						break;
+						
+			}
+			 setTimeout(updateCharts,screenRefreshTimeout);
+
+		}
+
+        function clear()
+        {
+            while (svg.lastChild)
+            {
+                svg.removeChild(svg.lastChild);
+            }
+        }
+
+        function ChartSettings()
+        {
+
+            svgMargin = 20;
+            svgSpace = 60;
+
+            svgHeight = svg.height.baseVal.value - 2 * svgMargin - svgSpace;
+            svgWidth = svg.width.baseVal.value - 2 * svgMargin - svgSpace;
+
+            MarginSpace = svgMargin + svgSpace;
+            MarginHeight = svgMargin + svgHeight;
+            MarginWidth = svgMargin + svgWidth;
+
+            barchartMargin = 15;
+//            totalChartBars = bufferArray.length;
+            totalChartBars = totalDisplayPoints;
+			totalChartLabels=15;
+            barchartWidth = (svgWidth / totalChartBars) - barchartMargin;
+			labelchartWidth=(svgWidth / totalChartLabels) - barchartMargin;
+
+            maximumDataValue = 0;
+            for (var i = 0; i < bufferArray.length; i++)
+            {
+                var arrVal = bufferArray[i].split(",");
+                var barVal = parseInt(arrVal[1]);
+                if (parseInt(barVal) > parseInt(maximumDataValue))
+                    maximumDataValue = barVal;
+            }
+			maximumXValue = 0;
+            for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrVal = bufferArray[i].split(",");
+                var barVal = parseInt(arrVal[0]);
+                if (parseInt(barVal) > parseInt(maximumXValue))
+                    maximumXValue = barVal;
+            }
+
+
+            LabelOnYAxis = 10;
+			LabelOnXAxis = 20;
+        }
+
+        function drawAxis()
+        {
+            //Y-Axis
+			drawXYTicks(1);
+            drawXYAxis(MarginSpace, MarginHeight, MarginSpace, svgMargin);
+            //X-Axis
+            drawXYAxis(MarginSpace, MarginHeight, MarginSpace + MarginWidth, MarginHeight);
+			
+            drawMarkers();
+			drawHVMarker();
+			
+        }
+
+        function drawXYAxis(x1, y1, x2, y2)
+        {
+            var newdataAxis = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            newdataAxis.setAttribute("x1", x1);
+            newdataAxis.setAttribute("y1", y1);
+            newdataAxis.setAttribute("x2", x2);
+            newdataAxis.setAttribute("y2", y2);
+            newdataAxis.style.stroke = "black";
+            newdataAxis.style.strokeWidth = "5px";
+            svg.appendChild(newdataAxis);
+			
+        }
+		function drawXYTicks(colour){
+		    var numberMarkers = parseInt(maximumDataValue / LabelOnYAxis);
+            for (var i = 0; i < LabelOnYAxis + 1; i++)
+            {
+                markerVal = i * numberMarkers;
+                markerValHt = i * numberMarkers * svgHeight;
+                var xaxisMarkers = MarginSpace+MarginWidth;
+//                var xaxisMarkers = MarginSpace - 5;
+				
+                var yaxisMarkers = MarginHeight - (markerValHt / maximumDataValue);
+				drawVert(MarginSpace,yaxisMarkers,xaxisMarkers,yaxisMarkers,3,"grey");
+
+
+            }
+            for (var i = 0; i < totalChartLabels; i++)
+            {
+				currVal=i*bufferArray.length/totalChartLabels;
+				currVal=currVal.toFixed(0);
+                arrVal = bufferArray[currVal].split(",");
+                name = arrVal[0];
+                markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
+//                markerYPosition = MarginHeight + 20;
+                markerYPosition = MarginHeight ;
+
+				drawVert(markerXPosition,svgMargin,markerXPosition,markerYPosition,1,"darkgrey");
+
+            }
+
+
+		}
+
+        function drawMarkers()
+        {
+            var numberMarkers = parseInt(maximumDataValue / LabelOnYAxis);
+            for (var i = 0; i < LabelOnYAxis + 1; i++)
+            {
+                markerVal = i * numberMarkers;
+                markerValHt = i * numberMarkers * svgHeight;
+                var xaxisMarkers = MarginSpace - 5;
+                var yaxisMarkers = MarginHeight - (markerValHt / maximumDataValue);
+                textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                textelement.setAttribute('dx', xaxisMarkers-40);
+                textelement.setAttribute('dy',yaxisMarkers);
+				textelement.setAttribute('class',"text1");
+
+                txtnode = document.createTextNode(markerVal);
+                textelement.appendChild(txtnode);
+                svg.appendChild(textelement);
+
+            }
+            for (var i = 0; i < totalChartLabels; i++)
+            {
+				currVal=i*bufferArray.length/totalChartLabels;
+				currVal=currVal.toFixed(0);
+                arrVal = bufferArray[currVal].split(",");
+                name = arrVal[0];
+                markerXPosition = MarginSpace + barchartMargin + (i * (labelchartWidth + barchartMargin)) + (labelchartWidth / 2);
+                markerYPosition = MarginHeight + 20;
+                textelement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                textelement.setAttribute('dx', markerXPosition);
+                textelement.setAttribute('dy', markerYPosition);
+				textelement.setAttribute('class',"text1");
+                txtnode = document.createTextNode(name);
+                textelement.appendChild(txtnode);
+                svg.appendChild(textelement);
+            }
+        }
+
+        function drawRectangleForChart(x, y, wd, ht, fill) {
+            var rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+            rect.setAttributeNS(null, 'x', x);
+            rect.setAttributeNS(null, 'y', y);
+            rect.setAttributeNS(null, 'width', wd);
+            rect.setAttributeNS(null, 'height', ht);
+            rect.setAttributeNS(null, 'fill', fill_colour);
+            rect.setAttributeNS(null, 'fill-opacity', fill_opacity);
+            rect.setAttributeNS(null, 'stroke', stroke_colour);
+            rect.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+            rect.setAttributeNS(null, 'stroke-width', stroke_size);
+			rect.setAttributeNS(null, 'class', 'lines');
+			
+
+            svg.appendChild(rect);
+        }
+
+        function drawEllipse(x, y, rx) {
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+            circle.setAttributeNS(null, 'cx', x);
+            circle.setAttributeNS(null, 'cy', y);
+            circle.setAttributeNS(null, 'r', rx);
+            circle.setAttributeNS(null, 'fill', "darkred");
+			circle.setAttributeNS(null, 'class', 'lines');
+            svg.appendChild(circle);
+        }
+        function drawLine(x, y, rx) {
+            var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            line.setAttributeNS(null, 'x1', old_x1)
+			line.setAttributeNS(null, 'y1',old_y1);
+            line.setAttributeNS(null, 'x2', x)
+			line.setAttributeNS(null, 'y2',y);
+			
+			old_x1=x;old_y1=y;
+            line.setAttributeNS(null, 'stroke-width', rx);
+            line.setAttributeNS(null, 'fill', "darkred");
+            line.setAttributeNS(null, 'stroke', "black");
+            line.setAttributeNS(null, 'stroke-width', rx);
+			line.setAttributeNS(null, 'class', 'lines');
+            svg.appendChild(line);
+
+        }
+		
+// The smoothing ratio
+
+
+
+
+// Properties of a line 
+// I:  - pointA (array) [x,y]: coordinates
+//     - pointB (array) [x,y]: coordinates
+// O:  - (object) { length: l, angle: a }: properties of the line
+const line = (pointA, pointB) => {
+  const lengthX = pointB[0] - pointA[0]
+  const lengthY = pointB[1] - pointA[1]
+  return {
+    length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+    angle: Math.atan2(lengthY, lengthX)
+  }
+}
+
+// Position of a control point 
+// I:  - current (array) [x, y]: current point coordinates
+//     - previous (array) [x, y]: previous point coordinates
+//     - next (array) [x, y]: next point coordinates
+//     - reverse (boolean, optional): sets the direction
+// O:  - (array) [x,y]: a tuple of coordinates
+const controlPoint = (current, previous, next, reverse) => {
+
+  // When 'current' is the first or last point of the array
+  // 'previous' or 'next' don't exist.
+  // Replace with 'current'
+  const p = previous || current
+  const n = next || current
+
+  // Properties of the opposed-line
+  const o = line(p, n)
+
+  // If is end-control-point, add PI to the angle to go backward
+  const angle = o.angle + (reverse ? Math.PI : 0)
+  const length = o.length * smoothing
+
+  // The control point position is relative to the current point
+  const x = current[0] + Math.cos(angle) * length
+  const y = current[1] + Math.sin(angle) * length
+  return [x, y]
+}
+
+// Create the bezier curve command 
+// I:  - point (array) [x,y]: current point coordinates
+//     - i (integer): index of 'point' in the array 'a'
+//     - a (array): complete array of points coordinates
+// O:  - (string) 'C x2,y2 x1,y1 x,y': SVG cubic bezier C command
+const bezierCommand = (point, i, a) => {
+
+  // start control point
+  const cps = controlPoint(a[i - 1], a[i - 2], point)
+
+  // end control point
+  const cpe = controlPoint(point, a[i - 1], a[i + 1], true)
+  return `C ${cps[0]},${cps[1]} ${cpe[0]},${cpe[1]} ${point[0]},${point[1]}`
+}
+
+// Render the svg <path> element 
+// I:  - points (array): points coordinates
+//     - command (function)
+//       I:  - point (array) [x,y]: current point coordinates
+//           - i (integer): index of 'point' in the array 'a'
+//           - a (array): complete array of points coordinates
+//       O:  - (string) a svg path command
+// O:  - (string): a Svg <path> element
+const svgPath = (points, command) => {
+  // build the d attributes by looping over the points
+  const d = points.reduce((acc, point, i, a) => i === 0
+    ? `M ${point[0]},${point[1]}`
+    : `${acc} ${command(point, i, a)}`
+  , '')
+  return `${d}`
+}
+
+		function drawCurve(x=0, y=0, rx=3,final=0) {
+			var points=[];
+			var examdata=bufferArray;
+			points.push([MarginSpace, svgHeight]);
+			for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrchartVal = examdata[i].split(",");
+                bcVal = parseInt(arrchartVal[1]);
+                bcHt = (bcVal * svgHeight / maximumDataValue);
+                bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+                bcY = (MarginHeight - bcHt - 2);
+				points.push([bcX,bcY]);
+
+
+			
+			}
+			points.push([MarginWidth+MarginSpace,svgHeight]);
+			
+			/*
+			var drawCmd="";
+			for(i=0;i<points.length-2;i++){
+			var dirY=points[i+2][1]-points[i][1];
+			var dirX=points[i+2][0]-points[i][0];
+			
+			
+			var dist=Math.sqrt(dirY*dirY+1);
+			var unitY=dirY/dist;
+			var unitX=dirX/dist;
+			angle1=Math.atan(-dirY/dirX)+Math.PI/2;
+			angle2=Math.atan(dirY/dirX)+Math.PI/2;
+			x1=points[i+1][0]+Math.cos(angle1)*dist/5;
+			y1=points[i+1][1]+Math.sin(angle1)*dist/5;
+			x2=points[i+1][0]+Math.cos(angle2)*dist/5;
+			y2=points[i+1][1]+Math.sin(angle2)*dist/5;
+			
+
+			drawCmd+="M"+points[i+1][0]+","+points[i+1][1]+" ";
+			drawCmd+="T"+x2+","+y2+" ";
+			drawCmd+=" "+x1+","+y1+" ";
+
+			}
+			*/
+			drawCmd = svgPath(points, bezierCommand);
+//			console.log(drawCmd);
+            var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+ 
+
+			path.setAttributeNS(null, 'd',drawCmd);
+			
+    path.setAttributeNS(null, 'fill', fill_colour);
+    path.setAttributeNS(null, 'fill-opacity', fill_opacity);
+    path.setAttributeNS(null, 'stroke', stroke_colour);
+    path.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+    path.setAttributeNS(null, 'stroke-width', stroke_size);
+			path.setAttributeNS(null, 'class', 'lines');
+			path.setAttributeNS(null, 'id','curvehline');
+			
+            svg.appendChild(path);
+		
+			
+/*
+    
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
+            polyline.setAttributeNS(null, 'points', points)
+            polyline.setAttributeNS(null, 'stroke-width', strokesize);
+			polyline.setAttributeNS(null, 'stroke', strokecolour);
+			console.log(fillcolour);
+            polyline.setAttributeNS(null, 'fill', fillcolour);
+            polyline.setAttributeNS(null, 'fill_opacity',fillopacity);
+			
+
+			polyline.setAttributeNS(null, 'class', 'lines');
+			svg.appendChild(polyline);
+
+
+*/
+			
+
+        }
+
+        function updateHVMarker(x1, y1,x2,y2,elemid) {
+			
+			document.getElementById(elemid).x1.baseVal.value=x1;
+			document.getElementById(elemid).x2.baseVal.value=x2;
+			document.getElementById(elemid).y1.baseVal.value=y1;
+			document.getElementById(elemid).y2.baseVal.value=y2;
+
+
+        }
+        function drawHVMarker(strokesize=3,colourid="yellow",classid="ticks",hid="hmarker",vid="vmarker") {
+			
+//						updateHVMarker(posX,MarginHeight,posX,svgMargin,"hmarker",);//Y-Axis
+//						updateHVMarker(MarginWidth+MarginSpace,posY,MarginSpace,posY,"vmarker");//X-Axis
+						
+						
+            var hline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            hline.setAttributeNS(null, 'x1', MarginWidth/2)
+			hline.setAttributeNS(null, 'y1',MarginHeight);
+            hline.setAttributeNS(null, 'x2', MarginWidth/2)
+			hline.setAttributeNS(null, 'y2',svgMargin);
+			
+            hline.setAttributeNS(null, 'stroke-width', strokesize);
+            hline.setAttributeNS(null, 'fill', "white");
+            hline.setAttributeNS(null, 'stroke', colourid);
+            hline.setAttributeNS(null, 'stroke-width', strokesize);
+			hline.setAttributeNS(null, 'class', classid);
+			hline.setAttributeNS(null, 'opacity', '0.9');
+			hline.setAttributeNS(null, 'id', hid);
+
+			
+			
+            svg.appendChild(hline);
+            var vline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            vline.setAttributeNS(null, 'x1', MarginSpace)
+			vline.setAttributeNS(null, 'y1',MarginHeight/2);
+            vline.setAttributeNS(null, 'x2', MarginWidth+MarginSpace)
+			vline.setAttributeNS(null, 'y2',MarginHeight/2);
+			
+            vline.setAttributeNS(null, 'stroke-width', strokesize);
+            vline.setAttributeNS(null, 'fill', "white");
+            vline.setAttributeNS(null, 'stroke', colourid);
+            vline.setAttributeNS(null, 'stroke-width', strokesize);
+			vline.setAttributeNS(null, 'class', classid);
+			vline.setAttributeNS(null, 'opacity', '0.9');
+			vline.setAttributeNS(null, 'id', vid);
+
+			
+			
+            svg.appendChild(vline);
+
+
+        }
+        function drawVert(x1, y1,x2,y2,strokesize=1,colourid="grey",classid="ticks",elemid) {
+			
+            var vertline = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            vertline.setAttributeNS(null, 'x1', x1)
+			vertline.setAttributeNS(null, 'y1',y1);
+            vertline.setAttributeNS(null, 'x2', x2)
+			vertline.setAttributeNS(null, 'y2',y2);
+			
+            vertline.setAttributeNS(null, 'stroke-width', strokesize);
+            vertline.setAttributeNS(null, 'fill', "white");
+            vertline.setAttributeNS(null, 'stroke', colourid);
+            vertline.setAttributeNS(null, 'stroke-width', strokesize);
+			vertline.setAttributeNS(null, 'class', classid);
+			vertline.setAttributeNS(null, 'opacity', '0.9');
+			if(elemid)
+			vertline.setAttributeNS(null, 'id', elemid);
+			
+			
+            svg.appendChild(vertline);
+        }
+			
+		
+        function drawPoly(strokesize=3, fillcolour="blue",strokecolour="black",fillopacity=0.09) {
+
+			var points="";
+			var examdata=bufferArray;
+			for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrchartVal = examdata[i].split(",");
+                bcVal = parseInt(arrchartVal[1]);
+                bcHt = (bcVal * svgHeight / maximumDataValue);
+                bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+                bcY = (MarginHeight - bcHt - 2);
+				points+=bcX+','+bcY+' ';
+
+
+			
+			}
+			var x1=MarginSpace + (0 * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+			var x2=MarginSpace + (totalChartBars * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+			points=x1+","+MarginHeight+" "+points+" "+x2+","+MarginHeight;
+    
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
+            polyline.setAttributeNS(null, 'points', points)
+    polyline.setAttributeNS(null, 'fill', fill_colour);
+    polyline.setAttributeNS(null, 'fill-opacity', fill_opacity);
+    polyline.setAttributeNS(null, 'stroke', stroke_colour);
+    polyline.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+    polyline.setAttributeNS(null, 'stroke-width', stroke_size);
+            polyline.setAttributeNS(null, 'id','polyline');
+			
+
+			polyline.setAttributeNS(null, 'class', 'lines');
+			svg.appendChild(polyline);
+
+
+
+        }
+
+        function drawChart(chart)
+        {
+			
+			
+            for (var i = 0; i < totalChartBars; i++)
+            {
+                var arrchartVal = bufferArray[i].split(",");
+                bcVal = parseInt(arrchartVal[1]);
+                bcHt = (bcVal * svgHeight / maximumDataValue);
+                bcX = MarginSpace + (i * (barchartWidth + barchartMargin)) + barchartMargin + 10;
+                bcY = (MarginHeight - bcHt - 2);
+				if(initial++==0){old_x1=bcX;old_y1=bcY;}
+                switch (chart)
+                {
+                    case "Bar":
+                        drawRectangleForChart(bcX, bcY, labelchartWidth, bcHt, true);
+                        break;
+
+                    case "Point":
+                        drawEllipse(bcX, bcY, 5, 5);
+                        break;
+                    case "Line":
+                        drawLine(bcX, bcY, 5, 5);
+                        drawEllipse(bcX, bcY, 5, 5);
+
+                        break;
+                    case "Path":
+						if (i==0)
+							drawCurve(bcX, bcY, 5,-1);
+						else if(totalChartBars-i==1) 
+							drawCurve(bcX, bcY, 5,1); 
+							else 
+
+                        drawCurve(bcX, bcY, 5);
+                        drawEllipse(bcX, bcY, 5, 5);
+                        break;
+                }
+
+            }
+		old_x1=parseInt(bufferArray[0].split(",")[0]);old_y1=parseInt(bufferArray[0].split(",")[01]);
+		if(i>=totalChartBars)initial=0;
+
+		}
+function filters(){
+		
+		var svg=document.getElementById("lines");
+var fs=document.getElementById("lines");
+var circles=0;
+var svgns="http://www.w3.org/2000/svg";
+var w=window.innerWidth;
+}
+function createfilter(posx,posy,sizex,sizey,type,data){
+    var filter=document.createElementNS(svgns,"lines");
+    filter.setAttribute("id","f"+circles);
+    //filter.setAttribute("x",posx);
+    //filter.setAttribute("y",posy);
+    //filter.setAttribute("width",sizex);
+    //filter.setAttribute("height",sizey);
+    fs.appendChild(filter);
+    for(z=0;z<(data.length/2);z++){
+        var filter=document.createElementNS(svgns,type[z]);
+        filter.setAttributeNS(null,"in","SourceGraphic");
+        filter.setAttributeNS(null,data[2*z],data[2*z+1]);
+        document.getElementById("f"+circles).appendChild(filter);
+    }
+    console.log(document.getElementById("f"+circles)); //to see if it has worked or not
+}
+
+function createcircle(posx,posy,radius,stroke,fill,filter){
+    var circle=document.createElementNS(svgns,"circle");
+    circle.setAttributeNS(null,"id","c"+circles);
+    circle.setAttributeNS(null,"cx",posx);
+    circle.setAttributeNS(null,"cy",posy);
+    circle.setAttributeNS(null,"r",radius);
+    circle.setAttributeNS(null, 'fill', fill_colour);
+    circle.setAttributeNS(null, 'fill-opacity', fill_opacity);
+    circle.setAttributeNS(null, 'stroke', stroke_colour);
+    circle.setAttributeNS(null, 'stroke-opacity', stroke_opacity);
+    circle.setAttributeNS(null, 'stroke-width', stroke_size);
+    circle.setAttributeNS(null,"data-posx",posx);
+    svg.appendChild(circle);
+    console.log(circle);
+
+
+for(i=0;i<10;i++){
+    circles+=1;
+    createcircle((i*w/10),"50%","100","0","hsla("+(i*36)+",100%,50%,0.5)","url(#f"+circles+")");        createfilter("-50%","-50%","200%","200%",["feGaussianBlur"],["stdDeviation","5"]);
+//this works - the parameters are (posx,posy,radius,stroke,fill,filter) but currently I can only use a filter that I have created in the html svg element as my code doesn't work
+}
+		
+}
+        window.onload = drawBarChart;
+    </script>
+</head>
+
+<body>
+    <div id="chartcontainer">
+        <svg id="svgcontainer" height=800px width=100%>
+		 <defs>
+    <filter id="f1" x="0" y="0">
+      <feOffset in="SourceGraphic" stdDeviation="15" />
+    </filter>
+	<filter id="f3" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+    <filter id="f4" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceGraphic" dx="20" dy="20" />
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix"
+      values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
+      <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="10" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+	 <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:rgb(255,255,255);
+      stop-opacity:0" />
+      <stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" />
+    </radialGradient>
+    </filter>
+    <filter id="f2" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+      <feOffset in="blur" dx="4" dy="4" result="offsetBlur" />
+      <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut">
+        <fePointLight x="-5000" y="-10000" z="20000" />
+      </feSpecularLighting>
+    </filter>
+       <filter id="grad2">
+            <feImage xlink:href="#boxRect" result="grad"/>
+            <feDisplacementMap scale="10" xChannelSelector="R" yChannelSelector="G" in="SourceGraphic" in2="grad"/>
+        </filter>
+	
+ 
+
+  </defs>
+  <rect x="15" y="15" width="50" height="60" stroke="green" stroke-width="3"
+  style="fill:blue;stroke:pink;stroke-width:5;fill_opacity:0.05;stroke_opacity:0.9"  filter="url(#f4)" />
+
+        </svg>
+    </div>
+<table>
+<tr>
+<td>
+    <div id="charttype"><table><caption>Chart Type</caption>
+        <tr><td>Bar Chart</td><td><input type="radio"  id="barchart" name="Chart" /> </td></tr> 
+        <tr><td>Point Chart</td><td><input type="radio" id="pointchart" name="Chart" /></td></tr> 
+        <tr><td>Line Chart</td><td><input type="radio" id="linechart" name="Chart" /></td></tr> 
+        <tr><td>Poly Line Chart</td><td><input type="radio" id="polychart" name="Chart" /></td></tr> 
+		<tr><td>Curve Chart</td><td><input type="radio" id="curvechart" name="Chart" /></td></tr>
+		</table> 
+	</div>
+
+
+</td>
+
+
+
+<td>
+	 <div id="parameters" ><table class="parameters"><caption>Update Parameters</caption>
+        <tr><td>Refresh Rate</td><td><input type="text"  id="refreshrate" name="refresh" class='parameters' value=500 /></td></tr>  
+        <tr><td>Total Data Points</td><td><input type="text" id="totaldatapoints" name="poxy" class='paramters' value=1000 /></td></tr> 
+        <tr><td>Total Display Points</td><td><input type="text" id="totaldisplaypoints" name="poxy" class='paramters' value=150 /></td></tr> 
+	    <tr><td>Data Scroll Value</td><td><input type="text" id="datashiftval" name="poxy" class='paramters' value=5 /></td></tr> 
+		</table>
+     </div>
+	 	    
+</td>
+
+
+<td>
+	<div id="colors" >	<table class="parameters"><caption>Line width/Colour</caption>
+        <tr><td>Stroke colour</td><td><input type="text"  id="stroke_colour" name="refresh" class='parameters' value="red" /> </td></tr> 
+        <tr><td>Fill Colour</td><td><input type="text" id="fill_colour" name="poxy" class='paramters' value="blue" />  </td></tr> 
+        <tr><td>Stroke size</td><td><input type="text" id="stroke_size" name="poxy" class='paramters' value=5 />	 </td></tr> 
+        <tr><td>Stroke Opacity</td><td><input type="text" id="stroke_opacity" name="poxy" class='paramters' value=0.9 /> </td></tr>
+		<tr><td>Fill Opacity</td><td><input type="text" id="fill_opacity" name="poxy" class='paramters' value=0.1 /> </td></tr>
+		<tr><td>Smoothing</td><td><input type="text" id="smoothing" name="poxy" class='paramters' value=0.1 /> </td></tr>
+
+		</table>
+     </div>
+</td>
+</tr>
+</table>
+
+	    <div id="mousepos" max-width="10px"><table><tr>
+        <td><input type="text"  id="mousex" name="posx" class='labels' max-width='1' /></td> 
+        <td><input type="text" id="mousey" name="poxy" class='labels' max-width='1' /></td></tr></tr>
+		</table>
+     </div>
+	<div id='cmdline'> 
+   <textarea id="dbg" rows="4" cols="50"></textarea>
+    <div id="input_div">
+      $<input type="text" value="" id="input_el">
+    </div>
+	</div>
+
+</body>
+
+</html>
