@@ -1,3 +1,10 @@
+#Installation instructions
+
+1. Download the zip and unzip it.
+2. Using the ESP8266 Sketch data upload, all the files in the data directory are uploaded to the esp flash 
+3. The pages are served from the flash of the esp8266
+4. Fire a browser and point to esp address and the page loads automatically
+
 ## To test the HTML/javascript, check below:
 
 Running instance:
