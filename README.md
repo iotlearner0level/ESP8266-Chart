@@ -1,4 +1,4 @@
-#Installation instructions
+# Installation instructions
 
 1. Download the zip and unzip it.
 2. Using the ESP8266 Sketch data upload, all the files in the data directory are uploaded to the esp flash 
