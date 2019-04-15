@@ -1,5 +1,5 @@
 # Installation instructions
-https://travis-ci.org/iotlearner0level/ESP8266-Chart.svg?branch=master
+[![Build Status](https://travis-ci.org/iotlearner0level/ESP8266-Chart.svg?branch=master)](https://travis-ci.org/iotlearner0level/ESP8266-Chart)
 
 1. Download the zip and unzip it.
 2. Using the ESP8266 Sketch data upload, all the files in the data directory are uploaded to the esp flash 
